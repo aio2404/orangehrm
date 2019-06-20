@@ -64,12 +64,21 @@ class ohrmBuyNowAPIAction extends baseAddonAction
     public function buyNow($data, $addonDetail)
     {
         $result = $this->getApiManagerService()->buyNowAddon($data);
-        $addonData = array(
-            'id' => $addonDetail['id'],
-            'addonName' => $addonDetail['title'],
-            'status' => 'Requested'
-        );
-        $this->getMarcketplaceService()->installOrRequestAddon($addonData);
+        if(!$data['isRenew']) {
+            $addonData = array(
+                'id' => $addonDetail['id'],
+                'addonName' => $addonDetail['title'],
+                'type' => $addonDetail['type'],
+                'status' => MarketplaceDao::ADDON_STATUS_REQUESTED
+            );
+            $this->getMarcketplaceService()->installOrRequestAddon($addonData);
+        } else {
+            $this->getMarcketplaceService()->changeAddonStatus(
+                [$addonDetail['title']],
+                MarketplaceDao::ADDON_STATUS_EXPIRED,
+                MarketplaceDao::ADDON_STATUS_RENEW_REQUESTED
+            );
+        }
         return $result;
     }
 }
