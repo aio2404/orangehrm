@@ -122,7 +122,7 @@ class installAddonAPIAction extends baseAddonAction
             throw new Exception('installation query fails', 1002);
         }
         if (!$install) {
-            throw new Exception('install file excecution fails.', 1003);
+            throw new Exception('install file execution failed.', 1003);
         }
         chdir($symfonyPath);
         exec("php symfony o:publish-asset", $publishAssetResponse, $publishAssetStatus);
@@ -141,7 +141,8 @@ class installAddonAPIAction extends baseAddonAction
                 'addonName' => $addonDetail['title'],
                 'status' => MarketplaceDao::ADDON_STATUS_INSTALLED,
                 'type' => $addonDetail['type'],
-                'pluginName' => $pluginname
+                'pluginName' => $pluginname,
+                'version' => $addonDetail['version']['name']
             );
             $result = $this->getMarcketplaceService()->installOrRequestAddon($data);
         } else {
