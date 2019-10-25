@@ -54,7 +54,7 @@ class SchemaIncrementTask72  extends SchemaIncrementTask
 
     public function execute()
     {
-        $this->incrementNumber = 71;
+        $this->incrementNumber = 72;
         parent::execute();
         $result = array();
         foreach ($this->sql as $sql) {
