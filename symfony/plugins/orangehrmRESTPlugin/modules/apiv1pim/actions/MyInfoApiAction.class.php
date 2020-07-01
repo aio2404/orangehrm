@@ -56,10 +56,7 @@ class MyInfoApiAction extends baseRestAction
      */
     protected function handleGetRequest(Request $request)
     {
-        $server = $this->getOAuthServer();
-        $oauthRequest = $this->getOAuthRequest();
-        $oauthResponse = $this->getOAuthResponse();
-        $token = $server->getAccessTokenData($oauthRequest, $oauthResponse);
+        $token = $this->getAccessTokenData();
 
         $user = $this->systemUserApi->getSystemUserById($token['user_id']);
         $response = [];
