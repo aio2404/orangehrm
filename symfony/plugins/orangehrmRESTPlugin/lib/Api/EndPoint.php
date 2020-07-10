@@ -45,28 +45,28 @@ class EndPoint {
     }
 
     /**
-     * @return null
+     * @return RequestParams
      */
     public function getRequestParams() {
         return $this->requestParams;
     }
 
     /**
-     * @param null $requestParams
+     * @param RequestParams $requestParams
      */
     public function setRequestParams($requestParams) {
         $this->requestParams = $requestParams;
     }
 
     /**
-     * @return mixed
+     * @return Request
      */
     public function getRequest() {
         return $this->request;
     }
 
     /**
-     * @param mixed $request
+     * @param Request $request
      */
     public function setRequest($request) {
         $this->request = $request;
