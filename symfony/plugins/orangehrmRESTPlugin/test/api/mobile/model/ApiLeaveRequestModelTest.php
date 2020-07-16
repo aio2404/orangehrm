@@ -33,9 +33,11 @@ class ApiLeaveRequestModelTest extends PHPUnit\Framework\TestCase
             'fromDate' => '2020-01-01',
             'toDate' => '2020-12-31',
             'appliedDate' => '2020-06-01',
+            'leaveBalance' => '10.00',
             'numberOfDays' => '5',
             'days' => [],
-            'comments' => []
+            'comments' => [],
+            'leaveBreakdown' => 'Scheduled(0.50)',
         );
 
         $leaveRequestEntity = new LeaveRequest(1, 'Annual');
@@ -44,7 +46,9 @@ class ApiLeaveRequestModelTest extends PHPUnit\Framework\TestCase
         $leaveRequestEntity->setAppliedDate('2020-06-01');
         $leaveRequestEntity->setFromDate('2020-01-01');
         $leaveRequestEntity->setToDate('2020-12-31');
+        $leaveRequestEntity->setLeaveBalance('10.00');
         $leaveRequestEntity->setNumberOfDays('5');
+        $leaveRequestEntity->setLeaveBreakdown('Scheduled(0.50)');
 
         $leaveRequestModel = new LeaveRequestModel($leaveRequestEntity);
 
