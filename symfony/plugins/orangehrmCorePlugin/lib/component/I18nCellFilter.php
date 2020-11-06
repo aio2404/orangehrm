@@ -24,7 +24,7 @@
 class I18nCellFilter extends ohrmCellFilter {
     
     public function filter($value) {
-        sfProjectConfiguration::getActive()->loadHelpers('I18N');
+        sfProjectConfiguration::getActive()->loadHelpers('OrangeI18N');
         
         return __($value);
     }
