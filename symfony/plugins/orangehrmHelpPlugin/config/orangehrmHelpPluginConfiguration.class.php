@@ -23,7 +23,7 @@ class orangehrmHelpPluginConfiguration extends sfPluginConfiguration
     {
         $enabledModules = sfConfig::get('sf_enabled_modules');
         if (is_array($enabledModules)) {
-            sfConfig::set('sf_enabled_modules', array_merge(sfConfig::get('sf_enabled_modules'), ['help']));
+            sfConfig::set('sf_enabled_modules', array_merge(sfConfig::get('sf_enabled_modules'), ['help','support']));
         }
     }
 }

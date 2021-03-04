@@ -21,5 +21,7 @@ class viewHelpComponent extends sfComponent
 {
     public function execute($request)
     {
+        $this->routeActionName = sfContext::getInstance()->getActionName();
+        $this->routeModuleName = sfContext::getInstance()->getModuleName();
     }
 }
