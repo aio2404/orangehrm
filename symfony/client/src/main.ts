@@ -17,9 +17,10 @@
  */
 
 import {createApp} from 'vue';
-import axios, {AxiosInstance} from 'axios';
 import components from './components';
 import pages from './pages';
+import toaster, {ToasterAPI} from './core/plugins/toaster/toaster';
+import './core/plugins/toaster/toaster.scss';
 
 const app = createApp({
   name: 'App',
@@ -29,24 +30,25 @@ const app = createApp({
 // Global Register Components
 app.use(components);
 
+app.use(toaster, {
+  duration: 2500,
+  persist: false,
+  animation: 'oxd-toast-list',
+  position: 'bottom',
+});
+
 // @ts-expect-error
 const baseUrl = window.appGlobal.baseUrl;
 
 // https://github.com/vuejs/vue-next/pull/982
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
-    $http: AxiosInstance;
+    $toast: ToasterAPI;
   }
 }
 
-// TODO:: Remove globalProperties if not using
 app.config.globalProperties.global = {
   baseUrl,
 };
-
-app.config.globalProperties.$http = axios.create({
-  baseURL: baseUrl,
-  timeout: 3000,
-});
 
 app.mount('#app');
