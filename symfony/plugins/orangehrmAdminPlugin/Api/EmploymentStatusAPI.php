@@ -105,7 +105,6 @@ class EmploymentStatusAPI extends Endpoint implements CrudEndpoint
 
     /**
      * @return EndpointGetAllResult
-     * @throws DaoException
      * @throws Exception
      */
     public function getAll(): EndpointGetAllResult
@@ -127,7 +126,7 @@ class EmploymentStatusAPI extends Endpoint implements CrudEndpoint
             $employmentStatuses,
             new ParameterBag(
                 [
-                    'total' => $this->getEmploymentStatusService()->getSearchEmploymentStatusesCount(
+                    CommonParams::PARAMETER_TOTAL => $this->getEmploymentStatusService()->getSearchEmploymentStatusesCount(
                         $employmentStatusSearchParams
                     )
                 ]
@@ -142,7 +141,7 @@ class EmploymentStatusAPI extends Endpoint implements CrudEndpoint
     {
         return new ParamRuleCollection(
             new ParamRule(self::FILTER_NAME),
-            ...$this->getSortingAndPaginationParamsRules(['es.name'])
+            ...$this->getSortingAndPaginationParamsRules(EmploymentStatusSearchFilterParams::ALLOWED_SORT_FIELDS)
         );
     }
 
