@@ -16,7 +16,9 @@
  * Boston, MA  02110-1301, USA
  */
 import SaveEmployee from './pages/employee/SaveEmployee.vue';
+import Employee from './pages/employee/Employee.vue';
 
 export default {
   'employee-save': SaveEmployee,
+  'employee-list': Employee,
 };
