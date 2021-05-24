@@ -19,12 +19,27 @@
 
 namespace OrangeHRM\Core\Api\V2\Validator\Rules;
 
+use OrangeHRM\Core\Traits\Auth\AuthUserTrait;
 use OrangeHRM\Core\Traits\UserRoleManagerTrait;
 use OrangeHRM\Entity\Employee;
 
 class InAccessibleEmpNumbers extends AbstractRule
 {
     use UserRoleManagerTrait;
+    use AuthUserTrait;
+
+    /**
+     * @var bool
+     */
+    protected bool $includeLoggedInEmpNumber;
+
+    /**
+     * @param bool $includeLoggedInEmpNumber
+     */
+    public function __construct(bool $includeLoggedInEmpNumber = true)
+    {
+        $this->includeLoggedInEmpNumber = $includeLoggedInEmpNumber;
+    }
 
     /**
      * @param mixed $input
@@ -35,6 +50,11 @@ class InAccessibleEmpNumbers extends AbstractRule
         if (!(is_numeric($input) && $input > 0)) {
             return false;
         }
+
+        if ($this->includeLoggedInEmpNumber && $input == $this->getAuthUser()->getEmpNumber()) {
+            return true;
+        }
+
         $accessibleEmpNumbers = $this->getUserRoleManager()->getAccessibleEntityIds(Employee::class);
 
         return in_array($input, $accessibleEmpNumbers);

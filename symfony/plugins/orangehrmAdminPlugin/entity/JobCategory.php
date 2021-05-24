@@ -19,8 +19,6 @@
 
 namespace OrangeHRM\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -36,32 +34,14 @@ class JobCategory
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    private int $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=60)
      */
-    private $name;
-
-    /**
-     * @var Collection
-     *
-     * @ORM\ManyToMany(targetEntity="OrangeHRM\Entity\Employee", mappedBy="JobCategory")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="id", referencedColumnName="eeo_cat_code")
-     * })
-     */
-    private $employees;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->employees = new ArrayCollection();
-    }
+    private string $name;
 
     /**
      * @return int
@@ -93,13 +73,5 @@ class JobCategory
     public function setName(string $name)
     {
         $this->name = $name;
-    }
-
-    /**
-     * @return Collection
-     */
-    public function getEmployees()
-    {
-        return $this->employees;
     }
 }
