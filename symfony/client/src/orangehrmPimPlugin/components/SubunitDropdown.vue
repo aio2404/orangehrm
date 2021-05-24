@@ -24,6 +24,7 @@
     label="Sub Unit"
     :create-options="loadOptions"
     :lazyLoad="false"
+    :clear="false"
   />
 </template>
 
@@ -44,15 +45,15 @@ export default {
     async loadOptions() {
       return new Promise(resolve => {
         this.http.getAll().then(({data}) => {
-          resolve(
-            data.data.map(item => {
-              return {
-                id: item.id,
-                label: item.name,
-                indent: item.level ? item.level + 1 : 1,
-              };
-            }),
-          );
+          const options = data.data.map(item => {
+            return {
+              id: item.id,
+              label: item.name,
+              indent: item.level ? item.level + 1 : 1,
+            };
+          });
+          options.unshift({id: 0, label: 'All'});
+          resolve(options);
         });
       });
     },
