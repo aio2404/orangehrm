@@ -44,16 +44,10 @@ class SaveEmployeeController extends AbstractVueController
 
     public function preRender(Request $request): void
     {
-        $id = $request->get('id');
-        if ($id) {
-            $component = new Component('employee-edit');
-            $component->addProp(new Prop('employee-id', Prop::TYPE_NUMBER, $id));
-        } else {
-            $component = new Component('employee-save');
-            $employeeId = $this->getIdGeneratorService()->getNextID(Employee::class);
-            $component->addProp(new Prop('emp-id', Prop::TYPE_NUMBER, $employeeId));
-            $component->addProp(new Prop('allowed-image-types', Prop::TYPE_ARRAY, EmpPicture::ALLOWED_IMAGE_TYPES));
-        }
+        $component = new Component('employee-save');
+        $employeeId = $this->getIdGeneratorService()->getNextID(Employee::class);
+        $component->addProp(new Prop('emp-id', Prop::TYPE_NUMBER, $employeeId));
+        $component->addProp(new Prop('allowed-image-types', Prop::TYPE_ARRAY, EmpPicture::ALLOWED_IMAGE_TYPES));
         $this->setComponent($component);
     }
 }
