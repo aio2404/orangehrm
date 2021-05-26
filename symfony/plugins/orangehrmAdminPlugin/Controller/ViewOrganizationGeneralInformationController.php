@@ -19,61 +19,28 @@
 
 namespace OrangeHRM\Admin\Controller;
 
+use OrangeHRM\Admin\Service\CountryService;
 use OrangeHRM\Core\Controller\AbstractVueController;
+use OrangeHRM\Core\Traits\ServiceContainerTrait;
 use OrangeHRM\Core\Vue\Component;
 use OrangeHRM\Core\Vue\Prop;
-use OrangeHRM\Pim\Service\EmployeeService;
-use OrangeHRM\Admin\Service\CountryService;
+use OrangeHRM\Framework\Services;
+use OrangeHRM\Pim\Traits\Service\EmployeeServiceTrait;
 
 class ViewOrganizationGeneralInformationController extends AbstractVueController
 {
-    /**
-     * @var EmployeeService|null
-     */
-    protected ?EmployeeService $employeeService = null;
-
-    /**
-     * @var CountryService|null
-     */
-    protected ?CountryService $countryService = null;
+    use EmployeeServiceTrait;
+    use ServiceContainerTrait;
 
     public function init(): void
     {
         $noOfEmployees = $this->getEmployeeService()->getNumberOfEmployees();
-        $countryList = $this->getCountryService()->getCountryCodeAndNameFromList();
+        /** @var CountryService $countryService */
+        $countryService = $this->getContainer()->get(Services::COUNTRY_SERVICE);
+        $countryList = $countryService->getCountryArray();
         $component = new Component('organization-general-information-view');
         $component->addProp(new Prop('number-of-employees', Prop::TYPE_NUMBER, $noOfEmployees));
         $component->addProp(new Prop('country-list', Prop::TYPE_ARRAY, $countryList));
         $this->setComponent($component);
-    }
-
-    /**
-     * @return EmployeeService|null
-     */
-    public function getEmployeeService(): ?EmployeeService
-    {
-        if (is_null($this->employeeService)) {
-            $this->employeeService = new EmployeeService();
-        }
-        return $this->employeeService;
-    }
-
-    /**
-     * @param EmployeeService|null $employeeService
-     */
-    public function setEmployeeService(?EmployeeService $employeeService): void
-    {
-        $this->employeeService = $employeeService;
-    }
-
-    /**
-     * @return CountryService|null
-     */
-    public function getCountryService(): ?CountryService
-    {
-        if (is_null($this->countryService)) {
-            $this->countryService = new CountryService();
-        }
-        return $this->countryService;
     }
 }

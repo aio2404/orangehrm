@@ -17,15 +17,24 @@
  * Boston, MA  02110-1301, USA
  */
 
+use OrangeHRM\Core\Traits\ServiceContainerTrait;
 use OrangeHRM\Framework\Http\Request;
 use OrangeHRM\Framework\PluginConfigurationInterface;
+use OrangeHRM\Framework\Services;
+use OrangeHRM\Pim\Service\EmployeeService;
 
 class PimPluginConfiguration implements PluginConfigurationInterface
 {
+    use ServiceContainerTrait;
+
     /**
      * @inheritDoc
      */
     public function initialize(Request $request): void
     {
+        $this->getContainer()->register(
+            Services::EMPLOYEE_SERVICE,
+            EmployeeService::class
+        );
     }
 }
