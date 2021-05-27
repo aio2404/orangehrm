@@ -20,34 +20,42 @@
 
 <template>
   <div class="orangehrm-attachment">
-    <div class="orangehrm-paper-container">
-      <oxd-divider />
-      <div class="orangehrm-attachment-header">
-        <oxd-text tag="h6">Attachments</oxd-text>
-        <oxd-button
-          label="Add"
-          iconName="plus"
-          displayType="text"
-          @click="onClickAdd"
-        />
+    <oxd-divider />
+    <save-attachment
+      v-if="showSaveModal"
+      :http="http"
+      @close="onSaveModalClose"
+    ></save-attachment>
+    <edit-attachment
+      v-else-if="showEditModal"
+      :data="editModalState"
+      :http="http"
+      @close="onEditModalClose"
+    ></edit-attachment>
+    <template v-else>
+      <div
+        class="orangehrm-horizontal-padding
+        orangehrm-vertical-padding"
+      >
+        <profile-action-header @click="onClickAdd">
+          Attachments
+        </profile-action-header>
       </div>
       <oxd-divider class="orangehrm-horizontal-margin" />
-      <div>
-        <div class="orangehrm-horizontal-padding orangehrm-vertical-padding">
-          <div v-if="checkedItems.length > 0">
-            <oxd-text tag="span">
-              {{ itemsSelectedText }}
-            </oxd-text>
-            <oxd-button
-              label="Delete Selected"
-              iconName="trash-fill"
-              displayType="label-danger"
-              @click="onClickDeleteSelected"
-              class="orangehrm-horizontal-margin"
-            />
-          </div>
-          <oxd-text tag="span" v-else>{{ itemsCountText }}</oxd-text>
+      <div class="orangehrm-horizontal-padding orangehrm-vertical-padding">
+        <div v-if="checkedItems.length > 0">
+          <oxd-text tag="span">
+            {{ itemsSelectedText }}
+          </oxd-text>
+          <oxd-button
+            label="Delete Selected"
+            iconName="trash-fill"
+            displayType="label-danger"
+            @click="onClickDeleteSelected"
+            class="orangehrm-horizontal-margin"
+          />
         </div>
+        <oxd-text tag="span" v-else>{{ itemsCountText }}</oxd-text>
       </div>
       <div class="orangehrm-container">
         <oxd-card-table
@@ -63,62 +71,54 @@
       <div v-if="showPaginator" class="orangehrm-bottom-container">
         <oxd-pagination :length="pages" v-model:current="currentPage" />
       </div>
-    </div>
-
+    </template>
     <delete-confirmation ref="deleteDialog"></delete-confirmation>
-    <save-attachment v-if="1 == 0" :http="http"></save-attachment>
   </div>
 </template>
 
 <script>
 import {APIService} from '@/core/util/services/api.service';
-// import usePaginate from '@orangehrm/core/util/composable/usePaginate';
+import usePaginate from '@orangehrm/core/util/composable/usePaginate';
 import SaveAttachment from '@/orangehrmPimPlugin/components/SaveAttachment';
+import EditAttachment from '@/orangehrmPimPlugin/components/EditAttachment';
+import ProfileActionHeader from '@/orangehrmPimPlugin/components/ProfileActionHeader';
+import DeleteConfirmationDialog from '@orangehrm/components/dialogs/DeleteConfirmationDialog.vue';
 
 export default {
   name: 'profile-attachments',
   components: {
     'save-attachment': SaveAttachment,
+    'edit-attachment': EditAttachment,
+    'profile-action-header': ProfileActionHeader,
+    'delete-confirmation': DeleteConfirmationDialog,
   },
   setup() {
+    // TODO: setup prop to change path
     const http = new APIService(
       window.appGlobal.baseUrl,
       'api/v2/admin/job-categories',
     );
-    // TODO: Change after API
-    // const {
-    //   showPaginator,
-    //   currentPage,
-    //   total,
-    //   pages,
-    //   pageSize,
-    //   response,
-    //   isLoading,
-    //   execQuery,
-    // } = usePaginate(http);
+
+    const {
+      showPaginator,
+      currentPage,
+      total,
+      pages,
+      pageSize,
+      response,
+      isLoading,
+      execQuery,
+    } = usePaginate(http);
     return {
       http,
-      showPaginator: false,
-      currentPage: 1,
-      isLoading: false,
-      total: 1,
-      pages: 1,
-      pageSize: 1,
-      items: {
-        data: [
-          {
-            id: 1,
-            name: 'File',
-            description: 'short description',
-            size: '456Kb',
-            type: 'Image',
-            date: '2021-05-20',
-            addedBy: 'admin',
-          },
-        ],
-        meta: [],
-        error: false,
-      },
+      showPaginator,
+      currentPage,
+      isLoading,
+      total,
+      pages,
+      pageSize,
+      execQuery,
+      items: response,
     };
   },
   data() {
@@ -150,18 +150,21 @@ export default {
                 name: 'pencil-fill',
               },
             },
+            download: {
+              onClick: this.onClickDownload,
+              props: {
+                name: 'download',
+              },
+            },
           },
         },
       ],
       checkedItems: [],
+      showSaveModal: false,
+      showEditModal: false,
+      editModalState: null,
     };
   },
-  // props: {
-  //   tabs: {
-  //     type: Array,
-  //     required: true,
-  //   },
-  // },
 
   computed: {
     itemsCountText() {
@@ -173,17 +176,71 @@ export default {
       return `${this.checkedItems.length} Attachment(s) selected`;
     },
   },
+
+  methods: {
+    onClickDeleteSelected() {
+      const ids = this.checkedItems.map(index => {
+        return this.items?.data[index].id;
+      });
+      this.$refs.deleteDialog.showDialog().then(confirmation => {
+        if (confirmation === 'ok') {
+          this.deleteItems(ids);
+        }
+      });
+    },
+    onClickDelete(item) {
+      this.$refs.deleteDialog.showDialog().then(confirmation => {
+        if (confirmation === 'ok') {
+          this.deleteItems([item.id]);
+        }
+      });
+    },
+    deleteItems(items) {
+      if (items instanceof Array) {
+        this.isLoading = true;
+        this.http
+          .deleteAll({
+            ids: items,
+          })
+          .then(() => {
+            return this.$toast.success({
+              title: 'Success',
+              message: 'Successfully Deleted',
+            });
+          })
+          .then(() => {
+            this.isLoading = false;
+            this.resetDataTable();
+          });
+      }
+    },
+    async resetDataTable() {
+      this.checkedItems = [];
+      await this.execQuery();
+    },
+    onClickAdd() {
+      this.showEditModal = false;
+      this.editModalState = null;
+      this.showSaveModal = true;
+    },
+    onClickEdit(item) {
+      this.showSaveModal = false;
+      this.editModalState = item;
+      this.showEditModal = true;
+    },
+    onClickDownload(item) {
+      // TODO: do download
+      console.log(item);
+    },
+    onSaveModalClose() {
+      this.showSaveModal = false;
+      this.resetDataTable();
+    },
+    onEditModalClose() {
+      this.showEditModal = false;
+      this.editModalState = null;
+      this.resetDataTable();
+    },
+  },
 };
 </script>
-
-<style lang="scss" scoped>
-.orangehrm-attachment {
-  &-header {
-    display: flex;
-    padding: 1.2rem;
-    button {
-      margin-left: 1rem;
-    }
-  }
-}
-</style>

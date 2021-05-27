@@ -19,46 +19,44 @@
  -->
 
 <template>
-  <div class="orangehrm-background-container">
-    <div class="orangehrm-card-container">
-      <oxd-text tag="h6">Save Attachment</oxd-text>
+  <div class="orangehrm-card-container">
+    <oxd-text tag="h6">Add Attachment</oxd-text>
+    <oxd-divider />
+    <oxd-form :loading="isLoading" @submitValid="onSave">
+      <oxd-form-row>
+        <oxd-input-field
+          type="file"
+          label="Select File"
+          buttonLabel="Browse"
+          v-model="attachment.file"
+          :rules="rules.file"
+        />
+        <oxd-text class="orangehrm-input-hint" tag="p"
+          >Accepts up to 1MB</oxd-text
+        >
+      </oxd-form-row>
+
+      <oxd-form-row>
+        <oxd-input-field
+          type="textarea"
+          label="Comment"
+          placeholder="Type comment here"
+          v-model="attachment.comment"
+          :rules="rules.comment"
+        />
+      </oxd-form-row>
+
       <oxd-divider />
-      <oxd-form :loading="isLoading" @submitValid="onSave">
-        <oxd-form-row>
-          <oxd-input-field
-            type="file"
-            label="Select File"
-            buttonLabel="Browse"
-            v-model="attachment.file"
-            :rules="rules.file"
-          />
-          <oxd-text class="orangehrm-input-hint" tag="p"
-            >Accepts up to 1MB</oxd-text
-          >
-        </oxd-form-row>
-
-        <oxd-form-row>
-          <oxd-input-field
-            type="textarea"
-            label="Comment"
-            placeholder="Type comment here"
-            v-model="attachment.comment"
-            :rules="rules.comment"
-          />
-        </oxd-form-row>
-
-        <oxd-divider />
-        <oxd-form-actions>
-          <oxd-button
-            type="button"
-            displayType="ghost"
-            label="Cancel"
-            @click="onCancel"
-          />
-          <submit-button />
-        </oxd-form-actions>
-      </oxd-form>
-    </div>
+      <oxd-form-actions>
+        <oxd-button
+          type="button"
+          displayType="ghost"
+          label="Cancel"
+          @click="onCancel"
+        />
+        <submit-button />
+      </oxd-form-actions>
+    </oxd-form>
   </div>
 </template>
 
@@ -70,6 +68,8 @@ const attachmentModel = {
 
 export default {
   name: 'save-attachment',
+
+  emits: ['close'],
 
   props: {
     http: {
@@ -104,7 +104,6 @@ export default {
   },
 
   methods: {
-    // TODO: API Call
     onSave() {
       this.isLoading = true;
       this.http
@@ -119,12 +118,11 @@ export default {
         })
         .then(() => {
           this.attachment = {...attachmentModel};
-          this.isLoading = false;
           this.onCancel();
         });
     },
     onCancel() {
-      console.log('on cancel');
+      this.$emit('close', true);
     },
   },
 };
