@@ -15,11 +15,13 @@
  * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA
  */
+
 import SaveEmployee from './pages/employee/SaveEmployee.vue';
 import Employee from './pages/employee/Employee.vue';
 import EmployeePersonalDetails from './pages/employee/EmployeePersonalDetails.vue';
 import EmployeeContactDetails from './pages/employee/EmployeeContactDetails.vue';
 import EmployeeEmergencyContacts from './pages/employee/EmployeeEmergencyContacts.vue';
+import EmployeeDependents from './pages/employee/EmployeeDependents.vue';
 
 export default {
   'employee-save': SaveEmployee,
@@ -27,4 +29,5 @@ export default {
   'employee-personal-details': EmployeePersonalDetails,
   'employee-contact-details': EmployeeContactDetails,
   'employee-emergency-contacts': EmployeeEmergencyContacts,
+  'employee-dependents': EmployeeDependents,
 };
