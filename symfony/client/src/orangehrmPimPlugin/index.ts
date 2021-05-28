@@ -22,6 +22,7 @@ import EmployeePersonalDetails from './pages/employee/EmployeePersonalDetails.vu
 import EmployeeContactDetails from './pages/employee/EmployeeContactDetails.vue';
 import EmployeeEmergencyContacts from './pages/employee/EmployeeEmergencyContacts.vue';
 import EmployeeDependents from './pages/employee/EmployeeDependents.vue';
+import EmployeeProfilePicture from './pages/employee/EmployeeProfilePicture.vue';
 
 export default {
   'employee-save': SaveEmployee,
@@ -30,4 +31,5 @@ export default {
   'employee-contact-details': EmployeeContactDetails,
   'employee-emergency-contacts': EmployeeEmergencyContacts,
   'employee-dependents': EmployeeDependents,
+  'employee-profile-picture': EmployeeProfilePicture,
 };
