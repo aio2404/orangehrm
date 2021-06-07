@@ -18,6 +18,7 @@
  */
 
 use OrangeHRM\Admin\Service\CountryService;
+use OrangeHRM\Admin\Service\PayGradeService;
 use OrangeHRM\Admin\Service\UserService;
 use OrangeHRM\Core\Traits\ServiceContainerTrait;
 use OrangeHRM\Framework\Http\Request;
@@ -40,6 +41,10 @@ class AdminPluginConfiguration implements PluginConfigurationInterface
         $this->getContainer()->register(
             Services::USER_SERVICE,
             UserService::class
+        );
+        $this->getContainer()->register(
+            Services::PAY_GRADE_SERVICE,
+            PayGradeService::class
         );
     }
 }
