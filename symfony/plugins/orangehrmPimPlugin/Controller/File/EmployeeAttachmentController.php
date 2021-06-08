@@ -59,29 +59,17 @@ class EmployeeAttachmentController extends AbstractFileController
         if ($empNumber && $attachId) {
             $attachment = $this->getEmployeeAttachmentService()->getAccessibleEmployeeAttachment($empNumber, $attachId);
             if ($attachment instanceof EmployeeAttachment) {
-                $response->headers->set("Content-Type", $attachment->getFileType());
-                $response->headers->set("Content-Length", $attachment->getSize());
-                $response->headers->set(
-                    'Content-Disposition',
-                    $this->makeAttachmentDisposition($attachment->getFilename())
+                $this->setCommonHeadersToResponse(
+                    $attachment->getFilename(),
+                    $attachment->getFileType(),
+                    $attachment->getSize(),
+                    $response
                 );
-
-                $response->setPublic();
-                $response->setMaxAge(0);
-                $response->headers->addCacheControlDirective('must-revalidate', true);
-                $response->headers->addCacheControlDirective('post-check', 0);
-                $response->headers->addCacheControlDirective('pre-check', 0);
-                $response->headers->set("Content-Transfer-Encoding", "binary");
-                $response->headers->set('Pragma', 'Public');
-                $response->headers->set('Expires', '0');
-
                 $response->setContent($attachment->getDecorator()->getAttachment());
-
                 return $response;
             }
         }
 
-        $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-        return $response;
+        return $this->handleBadRequest();
     }
 }
