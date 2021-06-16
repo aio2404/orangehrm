@@ -30,6 +30,11 @@ class EmployeeLanguagesSearchFilterParams extends FilterParams
      */
     private ?int $empNumber = null;
 
+    /**
+     * @var int[]|null
+     */
+    private ?array $languageIds = null;
+
     public function __construct()
     {
         $this->setSortField('l.name');
@@ -49,5 +54,21 @@ class EmployeeLanguagesSearchFilterParams extends FilterParams
     public function setEmpNumber(?int $empNumber): void
     {
         $this->empNumber = $empNumber;
+    }
+
+    /**
+     * @return int[]|null
+     */
+    public function getLanguageIds(): ?array
+    {
+        return $this->languageIds;
+    }
+
+    /**
+     * @param int[]|null $languageIds
+     */
+    public function setLanguageIds(?array $languageIds): void
+    {
+        $this->languageIds = $languageIds;
     }
 }
