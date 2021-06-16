@@ -23,17 +23,7 @@ use OrangeHRM\Core\Dto\FilterParams;
 
 class EmployeeSkillSearchFilterParams extends FilterParams
 {
-    public const ALLOWED_SORT_FIELDS = ['es.yearsOfExp'];
-
-    /**
-     * @var float|null
-     */
-    protected ?float $yearsOfExp = null;
-
-    /**
-     * @var string|null
-     */
-    protected ?string $comments = null;
+    public const ALLOWED_SORT_FIELDS = ['s.name'];
 
     /**
      * @var string|null
@@ -45,38 +35,7 @@ class EmployeeSkillSearchFilterParams extends FilterParams
      */
     public function __construct()
     {
-        $this->setSortField('es.yearsOfExp');
-    }
-    /**
-     * @return float|null
-     */
-    public function getYearsOfExp(): ?float
-    {
-        return $this->yearsOfExp;
-    }
-
-    /**
-     * @param string|null $yearsOfExp
-     */
-    public function setYearsOfExp(?string $yearsOfExp): void
-    {
-        $this->yearsOfExp = $yearsOfExp;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getComments(): ?string
-    {
-        return $this->comments;
-    }
-
-    /**
-     * @param string|null $comments
-     */
-    public function setComments(?string $comments): void
-    {
-        $this->comments = $comments;
+        $this->setSortField('s.name');
     }
 
     /**
@@ -94,5 +53,4 @@ class EmployeeSkillSearchFilterParams extends FilterParams
     {
         $this->empNumber = $empNumber;
     }
-
 }
