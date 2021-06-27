@@ -21,7 +21,7 @@ namespace OrangeHRM\Pim\Controller;
 
 use Exception;
 use OrangeHRM\Core\Controller\AbstractModuleController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use OrangeHRM\Framework\Http\RedirectResponse;
 
 class PimModuleController extends AbstractModuleController
 {
