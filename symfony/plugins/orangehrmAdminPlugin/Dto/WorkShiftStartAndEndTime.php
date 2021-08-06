@@ -19,56 +19,58 @@
 
 namespace OrangeHRM\Admin\Dto;
 
+use DateTime;
+
 class WorkShiftStartAndEndTime
 {
     /**
-     * @var string H:i format
+     * @var DateTime
      */
-    private string $startTime;
+    private DateTime $startTime;
 
     /**
-     * @var string H:i format
+     * @var DateTime
      */
-    private string $endTime;
+    private DateTime $endTime;
 
     /**
-     * @param string $startTime
-     * @param string $endTime
+     * @param DateTime $startTime
+     * @param DateTime $endTime
      */
-    public function __construct(string $startTime, string $endTime)
+    public function __construct(DateTime $startTime, DateTime $endTime)
     {
         $this->startTime = $startTime;
         $this->endTime = $endTime;
     }
 
     /**
-     * @return string
+     * @return DateTime
      */
-    public function getStartTime(): string
+    public function getStartTime(): DateTime
     {
         return $this->startTime;
     }
 
     /**
-     * @param string $startTime
+     * @param DateTime $startTime
      */
-    public function setStartTime(string $startTime): void
+    public function setStartTime(DateTime $startTime): void
     {
         $this->startTime = $startTime;
     }
 
     /**
-     * @return string
+     * @return DateTime
      */
-    public function getEndTime(): string
+    public function getEndTime(): DateTime
     {
         return $this->endTime;
     }
 
     /**
-     * @param string $endTime
+     * @param DateTime $endTime
      */
-    public function setEndTime(string $endTime): void
+    public function setEndTime(DateTime $endTime): void
     {
         $this->endTime = $endTime;
     }
