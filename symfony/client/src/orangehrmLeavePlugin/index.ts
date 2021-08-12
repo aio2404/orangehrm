@@ -19,9 +19,15 @@
 import LeavePeriod from './pages/configure/LeavePeriod.vue';
 import LeaveApply from './pages/LeaveApply.vue';
 import LeaveAssign from './pages/LeaveAssign.vue';
+import LeaveType from './pages/leaveType/LeaveType.vue';
+import EditLeaveType from './pages/leaveType/EditLeaveType.vue';
+import SaveLeaveType from './pages/leaveType/SaveLeaveType.vue';
 
 export default {
   'leave-period': LeavePeriod,
   'leave-apply': LeaveApply,
   'leave-assign': LeaveAssign,
+  'leave-type-edit': EditLeaveType,
+  'leave-type-list': LeaveType,
+  'leave-type-save': SaveLeaveType,
 };
