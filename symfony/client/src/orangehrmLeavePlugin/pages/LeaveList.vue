@@ -51,7 +51,14 @@
           <oxd-form-row>
             <oxd-grid :cols="4" class="orangehrm-full-width-grid">
               <oxd-grid-item>
-                <employee-autocomplete v-model="filters.employee" />
+                <employee-autocomplete
+                  v-model="filters.employee"
+                  :params="{
+                    includeEmployees: filters.includePastEmps
+                      ? 'currentAndPast'
+                      : 'onlyCurrent',
+                  }"
+                />
               </oxd-grid-item>
               <oxd-grid-item>
                 <oxd-input-field
@@ -62,12 +69,11 @@
                 />
               </oxd-grid-item>
 
-              <oxd-grid-item>
-                <oxd-input-field
-                  type="switch"
-                  :label="$t('leave.include_past_employees')"
-                  v-model="filters.includePastEmps"
-                />
+              <oxd-grid-item class="orangehrm-leave-filter --span-column-2">
+                <oxd-text class="orangehrm-leave-filter-text" tag="p">
+                  {{ $t('leave.include_past_employees') }}
+                </oxd-text>
+                <oxd-switch-input v-model="filters.includePastEmps" />
               </oxd-grid-item>
             </oxd-grid>
           </oxd-form-row>
@@ -91,11 +97,13 @@
 <script>
 import LeaveListTable from '@/orangehrmLeavePlugin/components/LeaveListTable';
 import EmployeeAutocomplete from '@/core/components/inputs/EmployeeAutocomplete';
+import SwitchInput from '@orangehrm/oxd/core/components/Input/SwitchInput';
 
 export default {
   components: {
     'leave-list-table': LeaveListTable,
     'employee-autocomplete': EmployeeAutocomplete,
+    'oxd-switch-input': SwitchInput,
   },
   props: {
     subunits: {
@@ -109,3 +117,15 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.orangehrm-leave-filter {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  &-text {
+    font-size: $oxd-input-control-font-size;
+    margin-right: 1rem;
+  }
+}
+</style>

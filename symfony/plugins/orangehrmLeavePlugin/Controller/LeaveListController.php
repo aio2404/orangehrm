@@ -51,11 +51,11 @@ class LeaveListController extends AbstractVueController
         $component->addProp(new Prop('subunits', Prop::TYPE_ARRAY, $subunits));
 
         $leaveStatuses = [
-            ['id' => 1, 'label' => 'Rejected'],
-            ['id' => 2, 'label' => 'Cancelled'],
-            ['id' => 3, 'label' => 'Pending Approval'],
-            ['id' => 4, 'label' => 'Scheduled'],
-            ['id' => 5, 'label' => 'Taken'],
+            ['id' => 1, 'label' => 'Rejected', 'key' => 'rejected'],
+            ['id' => 2, 'label' => 'Cancelled', 'key' => 'cancelled'],
+            ['id' => 3, 'label' => 'Pending Approval', 'key' => 'pendingApproval'],
+            ['id' => 4, 'label' => 'Scheduled', 'key' => 'scheduled'],
+            ['id' => 5, 'label' => 'Taken', 'key' => 'taken'],
         ];
         $component->addProp(new Prop('leave-statuses', Prop::TYPE_ARRAY, $leaveStatuses));
 
