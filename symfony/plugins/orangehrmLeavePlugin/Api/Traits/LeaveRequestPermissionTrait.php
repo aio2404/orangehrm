@@ -23,7 +23,6 @@ use LogicException;
 use OrangeHRM\Core\Api\V2\Endpoint;
 use OrangeHRM\Core\Traits\UserRoleManagerTrait;
 use OrangeHRM\Entity\Employee;
-use OrangeHRM\Entity\LeaveEntitlement;
 use OrangeHRM\Entity\LeaveRequest;
 
 trait LeaveRequestPermissionTrait
