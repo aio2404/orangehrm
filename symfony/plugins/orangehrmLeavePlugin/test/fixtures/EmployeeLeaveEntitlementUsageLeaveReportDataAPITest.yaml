@@ -106,7 +106,7 @@ LeaveEntitlement:
   - { "id": 2,"emp_number": "1","no_of_days": "7.0","days_used": "3.8750","leave_type_id": "6","from_date": "2021-01-01 00:00:00","to_date": "2021-12-31 00:00:00","entitlement_type": "1","deleted": 0 }
   - { "id": 3,"emp_number": "2","no_of_days": "7.0","days_used": "7.0000","leave_type_id": "6","from_date": "2021-01-01 00:00:00","to_date": "2021-12-31 00:00:00","entitlement_type": "1","deleted": 0 }
   - { "id": 4,"emp_number": "3","no_of_days": "7.0","days_used": "0.0000","leave_type_id": "6","from_date": "2021-01-01 00:00:00","to_date": "2021-12-31 00:00:00","entitlement_type": "1","deleted": 0 }
-  - { "id": 5,"emp_number": "4","no_of_days": "7.0","days_used": "0.0000","leave_type_id": "6","from_date": "2022-01-01 00:00:00","to_date": "2022-12-31 00:00:00","entitlement_type": "1","deleted": 0 }
+  - { "id": 5,"emp_number": "4","no_of_days": "6.0","days_used": "0.0000","leave_type_id": "6","from_date": "2022-01-01 00:00:00","to_date": "2022-12-31 00:00:00","entitlement_type": "1","deleted": 0 }
   - { "id": 6,"emp_number": "1","no_of_days": "7.0","days_used": "0.0000","leave_type_id": "6","from_date": "2022-01-01 00:00:00","to_date": "2022-12-31 00:00:00","entitlement_type": "1","deleted": 0 }
   - { "id": 7,"emp_number": "2","no_of_days": "7.0","days_used": "1.0000","leave_type_id": "6","from_date": "2022-01-01 00:00:00","to_date": "2022-12-31 00:00:00","entitlement_type": "1","deleted": 0 }
   - { "id": 8,"emp_number": "3","no_of_days": "7.0","days_used": "0.0000","leave_type_id": "7","from_date": "2022-01-01 00:00:00","to_date": "2022-12-31 00:00:00","entitlement_type": "1","deleted": 0 }

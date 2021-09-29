@@ -111,7 +111,7 @@ class EmployeeLeaveEntitlementUsageReport implements EndpointAwareReport
         $filterParams->setFromDate(
             $endpoint->getRequestParams()->getDateTime(
                 RequestParams::PARAM_TYPE_QUERY,
-                LeaveCommonParams::PARAMETER_DURATION_FROM_TIME,
+                LeaveCommonParams::PARAMETER_FROM_DATE,
                 null,
                 $leavePeriod->getStartDate()
             )
@@ -119,7 +119,7 @@ class EmployeeLeaveEntitlementUsageReport implements EndpointAwareReport
         $filterParams->setToDate(
             $endpoint->getRequestParams()->getDateTime(
                 RequestParams::PARAM_TYPE_QUERY,
-                LeaveCommonParams::PARAMETER_DURATION_TO_TIME,
+                LeaveCommonParams::PARAMETER_TO_DATE,
                 null,
                 $leavePeriod->getEndDate()
             )
