@@ -31,8 +31,6 @@ class FilterFieldFixture extends AbstractFixture
         /** @var FilterField[] $filterFields */
         $filterFields = $this->getEntityManager()->getRepository(FilterField::class)->findAll();
         $results = [];
-        $groupIds = [];
-        $groups = [];
         foreach ($filterFields as $filterField) {
             $result = [];
             $result['id'] = $filterField->getId();
@@ -41,18 +39,10 @@ class FilterFieldFixture extends AbstractFixture
             $result['conditionNo'] = $filterField->getConditionNo();
             $result['className'] = $filterField->getClassName();
             $result['report_group_id'] = $filterField->getReportGroup()->getId();
-            if (!in_array($result['report_group_id'], $groupIds)) {
-                $groupIds[] = $result['report_group_id'];
-                $groups[] = [
-                    'id' => $filterField->getReportGroup()->getId(),
-                    'name' => $filterField->getReportGroup()->getName(),
-                    'coreSql' => $filterField->getReportGroup()->getCoreSql(),
-                ];
-            }
             $results[] = $result;
         }
 
-        return ['ReportGroup' => $groups, 'FilterField' => $results];
+        return ['FilterField' => $results];
     }
 
     /**
