@@ -24,7 +24,7 @@
       <oxd-text tag="h6" class="orangehrm-main-title">Add Report</oxd-text>
       <oxd-divider />
 
-      <oxd-form :loading="isLoading" @submitValid="onSave">
+      <oxd-form ref="formRef" :loading="isLoading" @submitValid="onSave">
         <oxd-form-row>
           <oxd-grid :cols="2" class="orangehrm-full-width-grid">
             <oxd-grid-item>
@@ -50,7 +50,6 @@
                 type="select"
                 label="Selection Criteria"
                 v-model="report.criterion"
-                :rules="rules.criterion"
                 :options="availableCriteria"
               />
               <oxd-input-group>
@@ -98,7 +97,6 @@
                 type="select"
                 label="Select Display Field Group"
                 v-model="report.fieldGroup"
-                :rules="rules.fieldGroup"
                 :options="availableFieldGroups"
               />
             </oxd-grid-item>
@@ -107,7 +105,6 @@
                 type="select"
                 label="Select Display Field"
                 v-model="report.displayField"
-                :rules="rules.displayField"
                 :options="availableDisplyFields"
               />
               <oxd-input-group>
@@ -117,6 +114,11 @@
                   @click="addDisplayField"
                 />
               </oxd-input-group>
+            </oxd-grid-item>
+            <oxd-grid-item v-if="errorMsg" class="--offset-column-1">
+              <oxd-text class="orangehrm-report-error" tag="p">
+                {{ errorMsg }}
+              </oxd-text>
             </oxd-grid-item>
             <!-- start display group fields -->
             <report-display-field
@@ -162,22 +164,7 @@ import {
 import {APIService} from '@orangehrm/core/util/services/api.service';
 import ReportCriterion from '@/orangehrmPimPlugin/components/ReportCriterion';
 import ReportDisplayField from '@/orangehrmPimPlugin/components/ReportDisplayField';
-
-const reportModel = {
-  name: '',
-  includeEmployees: {
-    id: 1,
-    key: 'onlyCurrent',
-    label: 'Current Employees Only',
-  },
-  criterion: null,
-  criteriaSelected: [],
-  criteriaFieldValues: {},
-  fieldGroup: null,
-  fieldGroupSelected: [],
-  displayField: null,
-  displayFieldSelected: {},
-};
+import useEmployeeReport from '@/orangehrmPimPlugin/util/composable/useEmployeeReport';
 
 export default {
   components: {
@@ -200,28 +187,53 @@ export default {
     },
   },
 
-  setup() {
+  setup(props) {
     const http = new APIService(
       window.appGlobal.baseUrl,
       '/api/v2/pim/reports/defined',
     );
+    const {
+      report,
+      formRef,
+      errorMsg,
+      addCriterion,
+      serializeBody,
+      addDisplayField,
+      removeCriterion,
+      removeDisplayField,
+      removeDisplayFieldGroup,
+      availableCriteria,
+      availableFieldGroups,
+      availableDisplyFields,
+    } = useEmployeeReport(
+      props.selectionCriteria,
+      props.displayFields,
+      props.displayFieldGroups,
+    );
+
     return {
       http,
+      report,
+      formRef,
+      errorMsg,
+      addCriterion,
+      serializeBody,
+      addDisplayField,
+      removeCriterion,
+      removeDisplayField,
+      removeDisplayFieldGroup,
+      availableCriteria,
+      availableFieldGroups,
+      availableDisplyFields,
     };
   },
 
   data() {
     return {
       isLoading: false,
-      report: {...reportModel},
       rules: {
         name: [required, shouldNotExceedCharLength(250)],
-        criterion: [],
         includeEmployees: [required],
-        fieldGroup: [],
-        displayField: [
-          () => required(Object.keys(this.report.displayFieldSelected)),
-        ],
       },
       includeOpts: [
         {id: 1, key: 'onlyCurrent', label: 'Current Employees Only'},
@@ -237,122 +249,26 @@ export default {
     },
     onSave() {
       this.isLoading = true;
-      const fieldGroup = {};
-      this.report.fieldGroupSelected.forEach(group => {
-        const fields = this.report.displayFieldSelected[group.id].fields;
-        const includeHeader = this.report.displayFieldSelected[group.id]
-          .includeHeader;
-        fieldGroup[group.id] = {
-          fields: fields.map(field => field.id),
-          includeHeader,
-        };
-      });
-      const criteria = {};
-      this.report.criteriaSelected.forEach(criterion => {
-        const values = this.report.criteriaFieldValues[criterion.id];
-        const valueX = values.operator.valueX;
-        const valueY = values.operator.valueY;
-        criteria[criterion.id] = {
-          operator: values.operator.id,
-          x: typeof valueX === 'object' ? valueX.id : valueX,
-          y: typeof valueY === 'object' ? valueY.id : valueY,
-        };
-      });
-
+      let reportId = null;
+      const payload = this.serializeBody(this.report);
       this.http
-        .create({
-          name: this.report.name,
-          include: this.report.includeEmployees?.key,
-          criteria,
-          fieldGroup,
-        })
-        .then(() => {
+        .create(payload)
+        .then(response => {
+          const {data} = response.data;
+          reportId = data.id;
           return this.$toast.saveSuccess();
         })
         .then(() => {
-          this.onCancel();
+          reportId &&
+            navigate('/pim/displayPredefinedReport/{id}', {id: reportId});
         });
-    },
-    addCriterion() {
-      const criterion = this.report.criterion;
-      if (criterion) {
-        this.report.criteriaSelected.push(criterion);
-        this.report.criteriaFieldValues[criterion.id] = {
-          valueX: null,
-          valueY: null,
-          operator: null,
-        };
-        this.report.criterion = null;
-      }
-    },
-    removeCriterion(index) {
-      const criterion = this.report.criteriaSelected.splice(index, 1);
-      delete this.report.criteriaFieldValues[criterion.id];
-    },
-    addDisplayField() {
-      const fieldGroup = this.report.fieldGroup;
-      const displayField = this.report.displayField;
-      if (displayField) {
-        const groupIndex = this.report.fieldGroupSelected.findIndex(
-          group => group.id === fieldGroup.id,
-        );
-        if (groupIndex === -1) {
-          this.report.fieldGroupSelected.push(fieldGroup);
-          this.report.displayFieldSelected[fieldGroup.id] = {
-            fields: [],
-            includeHeader: false,
-          };
-        }
-        this.report.displayFieldSelected[fieldGroup.id].fields.push(
-          displayField,
-        );
-        this.report.displayField = null;
-      }
-    },
-    removeDisplayField(item, index) {
-      const fieldGroup = this.report.fieldGroupSelected[index];
-      const fields = this.report.displayFieldSelected[fieldGroup.id].fields;
-      this.report.displayFieldSelected[fieldGroup.id].fields = fields.filter(
-        field => field.id !== item.id,
-      );
-    },
-    removeDisplayFieldGroup(index) {
-      const fieldGroup = this.report.fieldGroupSelected[index];
-      this.report.fieldGroupSelected.splice(index, 1);
-      delete this.report.displayFieldSelected[fieldGroup.id];
-    },
-  },
-
-  computed: {
-    availableCriteria() {
-      return this.selectionCriteria.filter(
-        criterion =>
-          !this.report.criteriaSelected.find(c => c.id === criterion.id),
-      );
-    },
-    availableFieldGroups() {
-      return this.displayFieldGroups;
-    },
-    availableDisplyFields() {
-      const fieldGroupId = this.report.fieldGroup?.id;
-      const fieldGroup = this.displayFields.find(
-        group => group.field_group_id === fieldGroupId,
-      );
-      return fieldGroup
-        ? fieldGroup.fields.filter(
-            field =>
-              !this.report.displayFieldSelected[fieldGroupId]?.fields.find(
-                f => f.id === field.id,
-              ),
-          )
-        : [];
     },
   },
 
   beforeMount() {
     this.isLoading = true;
     this.http
-      .getAll()
+      .getAll({limit: 0})
       .then(response => {
         const {data} = response.data;
         this.rules.name.push(v => {
@@ -367,14 +283,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.orangehrm-report {
-  &-criteria {
-    display: flex;
-    align-items: center;
-  }
-  &-icon {
-    margin-left: 1rem;
-  }
-}
-</style>
+<style src="./employee-report.scss" lang="scss" scoped></style>
