@@ -18,8 +18,10 @@
 
 import NoRecordsFound from './NoRecordsFound.vue';
 import BadRequest from './BadRequest.vue';
+import ModuleUnderDevelopment from './ModuleUnderDevelopment.vue';
 
 export default {
   'bad-request': BadRequest,
   'no-records-found': NoRecordsFound,
+  'module-under-development': ModuleUnderDevelopment,
 };
