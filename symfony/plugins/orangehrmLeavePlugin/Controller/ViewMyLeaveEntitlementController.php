@@ -20,11 +20,16 @@
 namespace OrangeHRM\Leave\Controller;
 
 use OrangeHRM\Core\Controller\AbstractVueController;
+use OrangeHRM\Core\Traits\Auth\AuthUserTrait;
 use OrangeHRM\Core\Vue\Component;
 use OrangeHRM\Framework\Http\Request;
+use OrangeHRM\Leave\Controller\Traits\PermissionTrait;
 
 class ViewMyLeaveEntitlementController extends AbstractVueController
 {
+    use PermissionTrait;
+    use AuthUserTrait;
+
     /**
      * @inheritDoc
      */
@@ -32,5 +37,6 @@ class ViewMyLeaveEntitlementController extends AbstractVueController
     {
         $component = new Component('leave-view-my-entitlement');
         $this->setComponent($component);
+        $this->setPermissionsForEmployee(['leave_entitlements'], $this->getAuthUser()->getEmpNumber());
     }
 }
