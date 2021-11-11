@@ -30,7 +30,7 @@ class ModuleUnderDevelopmentSubscriber extends AbstractEventSubscriber
 {
     use TextHelperTrait;
 
-    const MODULE_UNDER_DEVELOPMENT = [
+    public const MODULE_UNDER_DEVELOPMENT = [
         'time',
         'recruitment',
         'performance',
