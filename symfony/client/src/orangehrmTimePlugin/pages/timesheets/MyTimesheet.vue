@@ -47,7 +47,11 @@
         </oxd-text>
       </template>
       <template v-slot:footer-options>
-        <oxd-button displayType="ghost" :label="$t('general.edit')" />
+        <oxd-button
+          @click="onClickEdit"
+          displayType="ghost"
+          :label="$t('general.edit')"
+        />
         <oxd-button
           type="submit"
           displayType="secondary"
@@ -56,7 +60,10 @@
       </template>
     </timesheet>
     <br />
-    <timesheet-actions></timesheet-actions>
+    <timesheet-actions
+      v-if="timesheet.id"
+      :timesheet-id="timesheet.id"
+    ></timesheet-actions>
     <add-timesheet-modal
       v-if="showSaveModal"
       @close="onSaveModalClose"
@@ -65,6 +72,7 @@
 </template>
 
 <script>
+import {navigate} from '@ohrm/core/util/helper/navigation';
 import {APIService} from '@/core/util/services/api.service';
 import Timesheet from '@/orangehrmTimePlugin/components/Timesheet.vue';
 import TimesheetPeriod from '@/orangehrmTimePlugin/components/TimesheetPeriod.vue';
@@ -72,6 +80,7 @@ import TimesheetActions from '@/orangehrmTimePlugin/components/TimesheetActions.
 import AddTimesheetModal from '@/orangehrmTimePlugin/components/AddTimesheetModal.vue';
 
 const myTimesheetModal = {
+  id: null,
   data: [],
   meta: {},
 };
@@ -109,6 +118,9 @@ export default {
     onSaveModalClose() {
       this.showSaveModal = false;
     },
+    onClickEdit() {
+      navigate('/time/editTimesheet/{id}', {id: this.timesheet?.id});
+    },
   },
 
   beforeMount() {
@@ -117,7 +129,8 @@ export default {
       .get(1)
       .then(response => {
         const {data, meta} = response.data;
-        this.timesheet = {data, meta};
+        const id = meta.id;
+        this.timesheet = {id, data, meta};
       })
       .finally(() => {
         this.isLoading = false;

@@ -22,6 +22,8 @@ import SaveCustomer from './pages/customer/SaveCustomer.vue';
 import EditCustomer from './pages/customer/EditCustomer.vue';
 import MyTimesheet from './pages/timesheets/MyTimesheet.vue';
 import EditMyTimeSheet from './pages/timesheets/EditMyTimeSheet.vue';
+import EmployeeTimesheet from './pages/timesheets/EmployeeTimesheet.vue';
+import ViewEmployeeTimesheet from './pages/timesheets/ViewEmployeeTimesheet.vue';
 
 export default {
   'time-sheet-period': TimeSheetPeriodConfig,
@@ -30,4 +32,6 @@ export default {
   'customer-edit': EditCustomer,
   'my-timesheet': MyTimesheet,
   'edit-my-timesheet': EditMyTimeSheet,
+  'employee-timesheet': EmployeeTimesheet,
+  'view-employee-timesheet': ViewEmployeeTimesheet,
 };
