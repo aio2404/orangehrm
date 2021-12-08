@@ -58,36 +58,11 @@ class Customer
     private string $description;
 
     /**
-     * @return string
+     * @var Project
+     *
+     * @ORM\OneToOne (targetEntity="OrangeHRM\Entity\Project", mappedBy="customer")
      */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param string $description
-     */
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
-    }
+    private Project $project;
 
     /**
      * @return int
@@ -119,5 +94,37 @@ class Customer
     public function setDeleted(bool $deleted): void
     {
         $this->deleted = $deleted;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string $description
+     */
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
     }
 }
