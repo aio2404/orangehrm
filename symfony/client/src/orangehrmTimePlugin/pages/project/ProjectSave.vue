@@ -31,7 +31,7 @@
           <oxd-grid-item>
             <oxd-input-field
               v-model="project.name"
-              label="Project Name"
+              :label="$t('time.project_name')"
               :rules="rules.name"
               required
             />
@@ -48,7 +48,7 @@
             <oxd-grid-row>
               <oxd-button
                 display-type="text"
-                label="Add Customer"
+                :label="$t('time.add_customer')"
                 icon-name="plus"
                 style=""
                 @click="onClickAddCustomer"
@@ -62,7 +62,7 @@
               <oxd-input-field
                 v-model="project.description"
                 type="textarea"
-                label="Description"
+                :label="$t('general.description')"
                 placeholder="Type description here"
                 :rules="rules.description"
               />
@@ -84,7 +84,6 @@
                 display-type="text"
                 label="Add Another"
                 icon-name="plus"
-                style=""
                 @click="onAddAnother"
               />
               <oxd-grid-row> </oxd-grid-row>
@@ -95,7 +94,11 @@
         <oxd-divider />
         <oxd-form-actions>
           <required-text />
-          <oxd-button display-type="ghost" label="Cancel" @click="onCancel" />
+          <oxd-button
+            display-type="ghost"
+            :label="$t('general.cancel')"
+            @click="onCancel"
+          />
           <submit-button />
         </oxd-form-actions>
       </oxd-form>
