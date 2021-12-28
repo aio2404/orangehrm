@@ -906,6 +906,390 @@ GetAll:
       ]
     }
 
+  'get my timesheet which contains null duration (only comment)':
+    userId: 7
+    services:
+      time.timesheet_service: \OrangeHRM\Time\Service\TimesheetService
+      pim.employee_service: \OrangeHRM\Pim\Service\EmployeeService
+      core.config_service: \OrangeHRM\Core\Service\ConfigService
+      admin.user_service: \OrangeHRM\Admin\Service\UserService
+      core.normalizer_service: \OrangeHRM\Core\Service\NormalizerService
+      core.authorization.user_role_manager_helper: \OrangeHRM\Core\Authorization\Helper\UserRoleManagerHelper
+    factories:
+      core.authorization.user_role_manager: [ '\OrangeHRM\Core\Authorization\Manager\UserRoleManagerFactory', 'getNewUserRoleManager' ]
+    attributes:
+      timesheetId: 42
+    data: [
+      {
+        "project": {
+          "id": 10,
+          "name": "Training and Development",
+          "deleted": false
+        },
+        "customer": {
+          "id": 8,
+          "name": "Internal",
+          "deleted": false
+        },
+        "activity": {
+          "id": 73,
+          "name": "Manage Training Programs",
+          "deleted": false
+        },
+        "total": {
+          "hours": 5,
+          "minutes": 0,
+          "label": "05:00"
+        },
+        "dates": {
+          "2020-09-28": {
+            "id": 308,
+            "date": "2020-09-28",
+            "comment": null,
+            "duration": "01:00"
+          },
+          "2020-09-29": {
+            "id": 309,
+            "date": "2020-09-29",
+            "comment": "Comment",
+            "duration": null
+          },
+          "2020-09-30": {
+            "id": 310,
+            "date": "2020-09-30",
+            "comment": null,
+            "duration": "01:00"
+          },
+          "2020-10-01": {
+            "id": 311,
+            "date": "2020-10-01",
+            "comment": null,
+            "duration": "02:00"
+          },
+          "2020-10-02": {
+            "id": 312,
+            "date": "2020-10-02",
+            "comment": null,
+            "duration": "01:00"
+          }
+        }
+      },
+      {
+        "project": {
+          "id": 10,
+          "name": "Training and Development",
+          "deleted": false
+        },
+        "customer": {
+          "id": 8,
+          "name": "Internal",
+          "deleted": false
+        },
+        "activity": {
+          "id": 71,
+          "name": "Training Need Analysis",
+          "deleted": false
+        },
+        "total": {
+          "hours": 6,
+          "minutes": 0,
+          "label": "06:00"
+        },
+        "dates": {
+          "2020-09-28": {
+            "id": 313,
+            "date": "2020-09-28",
+            "comment": null,
+            "duration": "04:00"
+          },
+          "2020-09-29": {
+            "id": 314,
+            "date": "2020-09-29",
+            "comment": "Comment",
+            "duration": null
+          },
+          "2020-09-30": {
+            "id": 315,
+            "date": "2020-09-30",
+            "comment": null,
+            "duration": "01:00"
+          },
+          "2020-10-01": {
+            "id": 316,
+            "date": "2020-10-01",
+            "comment": null,
+            "duration": "01:00"
+          }
+        }
+      },
+      {
+        "project": {
+          "id": 11,
+          "name": "General HR Tasks",
+          "deleted": false
+        },
+        "customer": {
+          "id": 8,
+          "name": "Internal",
+          "deleted": false
+        },
+        "activity": {
+          "id": 76,
+          "name": "Manage Employee Inquiries",
+          "deleted": false
+        },
+        "total": {
+          "hours": 5,
+          "minutes": 0,
+          "label": "05:00"
+        },
+        "dates": {
+          "2020-09-28": {
+            "id": 317,
+            "date": "2020-09-28",
+            "comment": null,
+            "duration": "02:00"
+          },
+          "2020-09-29": {
+            "id": 318,
+            "date": "2020-09-29",
+            "comment": null,
+            "duration": "02:00"
+          },
+          "2020-09-30": {
+            "id": 319,
+            "date": "2020-09-30",
+            "comment": "Comment",
+            "duration": null
+          },
+          "2020-10-01": {
+            "id": 320,
+            "date": "2020-10-01",
+            "comment": null,
+            "duration": "01:00"
+          },
+          "2020-10-02": {
+            "id": 321,
+            "date": "2020-10-02",
+            "comment": "Comment",
+            "duration": null
+          }
+        }
+      },
+      {
+        "project": {
+          "id": 2,
+          "name": "ACME Ltd",
+          "deleted": false
+        },
+        "customer": {
+          "id": 7,
+          "name": "ACME Ltd",
+          "deleted": false
+        },
+        "activity": {
+          "id": 16,
+          "name": "Feature Development",
+          "deleted": false
+        },
+        "total": {
+          "hours": 6,
+          "minutes": 0,
+          "label": "06:00"
+        },
+        "dates": {
+          "2020-09-28": {
+            "id": 404,
+            "date": "2020-09-28",
+            "comment": null,
+            "duration": "02:00"
+          },
+          "2020-09-30": {
+            "id": 405,
+            "date": "2020-09-30",
+            "comment": null,
+            "duration": "04:00"
+          }
+        }
+      },
+      {
+        "project": {
+          "id": 2,
+          "name": "ACME Ltd",
+          "deleted": false
+        },
+        "customer": {
+          "id": 7,
+          "name": "ACME Ltd",
+          "deleted": false
+        },
+        "activity": {
+          "id": 15,
+          "name": "Employee Relations",
+          "deleted": false
+        },
+        "total": {
+          "hours": 3,
+          "minutes": 0,
+          "label": "03:00"
+        },
+        "dates": {
+          "2020-09-28": {
+            "id": 406,
+            "date": "2020-09-28",
+            "comment": null,
+            "duration": "01:00"
+          },
+          "2020-10-01": {
+            "id": 407,
+            "date": "2020-10-01",
+            "comment": null,
+            "duration": "01:00"
+          },
+          "2020-10-02": {
+            "id": 408,
+            "date": "2020-10-02",
+            "comment": null,
+            "duration": "01:00"
+          }
+        }
+      },
+      {
+        "project": {
+          "id": 2,
+          "name": "ACME Ltd",
+          "deleted": false
+        },
+        "customer": {
+          "id": 7,
+          "name": "ACME Ltd",
+          "deleted": false
+        },
+        "activity": {
+          "id": 11,
+          "name": "Administration",
+          "deleted": false
+        },
+        "total": {
+          "hours": 2,
+          "minutes": 0,
+          "label": "02:00"
+        },
+        "dates": {
+          "2020-10-01": {
+            "id": 409,
+            "date": "2020-10-01",
+            "comment": null,
+            "duration": "01:00"
+          },
+          "2020-10-02": {
+            "id": 410,
+            "date": "2020-10-02",
+            "comment": null,
+            "duration": "01:00"
+          }
+        }
+      }
+    ]
+    meta: {
+      "timesheet": {
+        "id": 42,
+        "status": {
+          "id": "NOT SUBMITTED",
+          "name": "Not Submitted"
+        },
+        "startDate": "2020-09-28",
+        "endDate": "2020-10-04"
+      },
+      "sum": {
+        "hours": 27,
+        "minutes": 0,
+        "label": "27:00"
+      },
+      "columns": {
+        "2020-09-28": {
+          "total": {
+            "hours": 10,
+            "minutes": 0,
+            "label": "10:00"
+          }
+        },
+        "2020-09-29": {
+          "total": {
+            "hours": 2,
+            "minutes": 0,
+            "label": "02:00"
+          }
+        },
+        "2020-09-30": {
+          "total": {
+            "hours": 6,
+            "minutes": 0,
+            "label": "06:00"
+          }
+        },
+        "2020-10-01": {
+          "total": {
+            "hours": 6,
+            "minutes": 0,
+            "label": "06:00"
+          }
+        },
+        "2020-10-02": {
+          "total": {
+            "hours": 3,
+            "minutes": 0,
+            "label": "03:00"
+          }
+        },
+        "2020-10-03": {
+          "total": {
+            "hours": 0,
+            "minutes": 0,
+            "label": "00:00"
+          }
+        },
+        "2020-10-04": {
+          "total": {
+            "hours": 0,
+            "minutes": 0,
+            "label": "00:00"
+          }
+        }
+      },
+      "dates": [
+          "2020-09-28",
+          "2020-09-29",
+          "2020-09-30",
+          "2020-10-01",
+          "2020-10-02",
+          "2020-10-03",
+          "2020-10-04"
+      ],
+      "employee": {
+        "empNumber": 7,
+        "lastName": "Collings",
+        "firstName": "Paul",
+        "middleName": "",
+        "employeeId": "0024",
+        "terminationId": null
+      },
+      "allowedActions": [
+        {
+          "action": "SUBMIT",
+          "name": "Submit"
+        },
+        {
+          "action": "MODIFY",
+          "name": "Modify"
+        },
+        {
+          "action": "VIEW",
+          "name": "View"
+        }
+      ]
+    }
+
 Update:
   'without params':
     userId: 1
