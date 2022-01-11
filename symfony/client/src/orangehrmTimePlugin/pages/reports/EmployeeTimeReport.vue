@@ -46,7 +46,10 @@
           <oxd-form-row>
             <oxd-grid :cols="2" class="orangehrm-full-width-grid">
               <oxd-grid-item>
-                <project-autocomplete v-model="filters.project" />
+                <project-autocomplete
+                  v-model="filters.project"
+                  :label="$t('time.project_name')"
+                />
               </oxd-grid-item>
               <oxd-grid-item>
                 <activity-dropdown
@@ -179,4 +182,4 @@ export default {
 };
 </script>
 
-<style src="./employee-time-report.scss" lang="scss" scoped></style>
+<style src="./time-reports.scss" lang="scss" scoped></style>
