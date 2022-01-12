@@ -32,7 +32,7 @@ class RequestBodySubscriber extends AbstractEventSubscriber
     {
         return [
             KernelEvents::REQUEST => [
-                ['onRequestEvent', 50000],
+                ['onRequestEvent', 99000],
             ],
         ];
     }
