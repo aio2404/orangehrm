@@ -19,9 +19,11 @@
 import PunchIn from './pages/PunchIn.vue';
 import PunchOut from './pages/PunchOut.vue';
 import AttendanceConfiguration from './pages/AttendanceConfiguration.vue';
+import ViewEmployeeAttendance from './pages/ViewEmployeeAttendance.vue';
 
 export default {
   'attendance-punch-in': PunchIn,
   'attendance-punch-out': PunchOut,
   'attendance-configuration': AttendanceConfiguration,
+  'view-employee-attendance': ViewEmployeeAttendance,
 };
