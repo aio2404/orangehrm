@@ -26,6 +26,10 @@ use OrangeHRM\Tests\Util\EndpointIntegrationTestCase;
 use OrangeHRM\Tests\Util\Integration\TestCaseParams;
 use OrangeHRM\Tests\Util\TestDataService;
 
+/**
+ * @group Attendance
+ * @group APIv2
+ */
 class AttendanceConfigurationAPITest extends EndpointIntegrationTestCase
 {
     /**
