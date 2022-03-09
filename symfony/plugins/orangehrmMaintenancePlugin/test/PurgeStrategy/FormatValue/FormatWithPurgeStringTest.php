@@ -33,7 +33,7 @@ class FormatWithPurgeStringTest extends TestCase
 
     public function testGetFormattedValue(): void
     {
-        $this->assertEquals("Purge", $this->formatWithPurgeString->getFormattedValue("First Name"));
-        $this->assertEquals("Purge", $this->formatWithPurgeString->getFormattedValue("Last Name"));
+        $this->assertEquals('Purged', $this->formatWithPurgeString->getFormattedValue("First Name"));
+        $this->assertEquals('Purged', $this->formatWithPurgeString->getFormattedValue(null));
     }
 }
