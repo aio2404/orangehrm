@@ -31,7 +31,7 @@ class DatabaseConfigurationController extends AbstractInstallerVueController
      */
     public function preRender(Request $request): void
     {
-        $component = new Component('database-config-screen');
+        $component = new Component('database-info-screen');
         $this->setComponent($component);
         StateContainer::getInstance()->setCurrentScreen(self::DB_INFO_SCREEN, true);
     }
