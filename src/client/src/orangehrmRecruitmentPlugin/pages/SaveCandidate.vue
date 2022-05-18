@@ -17,6 +17,7 @@
  * Boston, MA  02110-1301, USA
  */
  -->
+
 <template>
   <div class="orangehrm-background-container orangehrm-save-candidate-page">
     <div class="orangehrm-card-container">
@@ -174,7 +175,7 @@ export default {
   },
   setup() {
     const http = new APIService(
-      'https://01eefc6d-daf1-4643-97ae-2d15ea8b587b.mock.pstmn.io',
+      'https://c81c3149-4936-41d9-ab3d-e25f1bff2934.mock.pstmn.io',
       'recruitment/api/candidate',
     );
     return {
@@ -223,7 +224,7 @@ export default {
           return this.$toast.saveSuccess();
         })
         .then(() => {
-          navigate('/recruitment/viewCandidates');
+          navigate('/recruitment/addCandidate');
         });
     },
     onCancel() {
