@@ -28,7 +28,7 @@ use OrangeHRM\Tests\Util\TestDataService;
 class PerformanceReviewDaoTest extends KernelTestCase
 {
     private PerformanceReviewDao $performanceReviewDao;
-    protected $fixture;
+    protected string $fixture;
 
     protected function setUp(): void
     {
@@ -41,6 +41,7 @@ class PerformanceReviewDaoTest extends KernelTestCase
     {
         $performanceReviewSearchFilterParams = new PerformanceReviewSearchFilterParams();
         $performanceReviewSearchFilterParams->setEmpNumber(2);
+        $performanceReviewSearchFilterParams->setExcludeInactiveReviews(true);
         $result = $this->performanceReviewDao->getPerformanceReviewList($performanceReviewSearchFilterParams);
         $this->assertCount(1, $result);
     }
