@@ -20,12 +20,16 @@
 use OrangeHRM\Authentication\Auth\AuthProviderChain;
 use OrangeHRM\Core\Traits\Service\ConfigServiceTrait;
 use OrangeHRM\Core\Traits\ServiceContainerTrait;
+use OrangeHRM\Framework\Console\Console;
+use OrangeHRM\Framework\Console\ConsoleConfigurationInterface;
 use OrangeHRM\Framework\Http\Request;
 use OrangeHRM\Framework\PluginConfigurationInterface;
 use OrangeHRM\Framework\Services;
 use OrangeHRM\LDAP\Auth\LDAPAuthProvider;
+use OrangeHRM\LDAP\Command\LDAPSyncUserCommand;
+use OrangeHRM\LDAP\Dto\LDAPSetting;
 
-class LDAPAuthenticationPluginConfiguration implements PluginConfigurationInterface
+class LDAPAuthenticationPluginConfiguration implements PluginConfigurationInterface, ConsoleConfigurationInterface
 {
     use ServiceContainerTrait;
     use ConfigServiceTrait;
@@ -35,10 +39,19 @@ class LDAPAuthenticationPluginConfiguration implements PluginConfigurationInterf
      */
     public function initialize(Request $request): void
     {
-        if ($this->getConfigService()->getLDAPSetting()->isEnable()) {
+        $ldapSettings = $this->getConfigService()->getLDAPSetting();
+        if ($ldapSettings instanceof LDAPSetting && $ldapSettings->isEnable()) {
             /** @var AuthProviderChain $authProviderChain */
             $authProviderChain = $this->getContainer()->get(Services::AUTH_PROVIDER_CHAIN);
             $authProviderChain->addProvider(new LDAPAuthProvider());
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerCommands(Console $console): void
+    {
+        $console->add(new LDAPSyncUserCommand());
     }
 }
