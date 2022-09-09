@@ -21,6 +21,7 @@ use OrangeHRM\Core\Traits\ServiceContainerTrait;
 use OrangeHRM\Dashboard\Service\ChartService;
 use OrangeHRM\Dashboard\Service\EmployeeOnLeaveService;
 use OrangeHRM\Dashboard\Service\QuickLaunchService;
+use OrangeHRM\Dashboard\Service\EmployeeTimeAtWorkService;
 use OrangeHRM\Framework\Http\Request;
 use OrangeHRM\Framework\PluginConfigurationInterface;
 use OrangeHRM\Framework\Services;
@@ -46,6 +47,11 @@ class DashboardPluginConfiguration implements PluginConfigurationInterface
         $this->getContainer()->register(
             Services::QUICK_LAUNCH_SERVICE,
             QuickLaunchService::class
+        );
+
+        $this->getContainer()->register(
+            Services::EMPLOYEE_TIME_AT_WORK_SERVICE,
+            EmployeeTimeAtWorkService::class
         );
     }
 }
