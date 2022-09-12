@@ -19,15 +19,17 @@
 
 namespace OrangeHRM\Authentication\Auth;
 
-use OrangeHRM\Authentication\Dto\UserCredential;
+use OrangeHRM\Authentication\Dto\AuthParamsInterface;
+use OrangeHRM\Authentication\Exception\AuthenticationException;
 
 abstract class AbstractAuthProvider
 {
     /**
-     * @param UserCredential $credential
+     * @param AuthParamsInterface $authParams
      * @return bool
+     * @throws AuthenticationException
      */
-    abstract public function authenticate(UserCredential $credential): bool;
+    abstract public function authenticate(AuthParamsInterface $authParams): bool;
 
     /**
      * @return int
