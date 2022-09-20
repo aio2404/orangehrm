@@ -43,7 +43,7 @@ class ScheduledInterviewSummary implements ActionSummary
      */
     public function getGroupId(): int
     {
-        return 4;
+        return 5;
     }
 
     /**
