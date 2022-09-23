@@ -20,67 +20,36 @@
 namespace OrangeHRM\Dashboard\Controller;
 
 use OrangeHRM\Core\Controller\AbstractVueController;
+use OrangeHRM\Core\Helper\VueControllerHelper;
+use OrangeHRM\Core\Traits\Auth\AuthUserTrait;
+use OrangeHRM\Core\Traits\ServiceContainerTrait;
+use OrangeHRM\Core\Traits\UserRoleManagerTrait;
 use OrangeHRM\Core\Vue\Component;
 use OrangeHRM\Framework\Http\Request;
-use OrangeHRM\Core\Service\ModuleService;
-use OrangeHRM\Core\Traits\Auth\AuthUserTrait;
-use OrangeHRM\Core\Helper\VueControllerHelper;
-use OrangeHRM\Core\Traits\ServiceContainerTrait;
-use OrangeHRM\Framework\Services;
 
 class DashboardController extends AbstractVueController
 {
     use AuthUserTrait;
     use ServiceContainerTrait;
-
-    /**
-     * @return ModuleService
-     */
-    public function getModuleService(): ModuleService
-    {
-        return $this->getContainer()->get(Services::MODULE_SERVICE);
-    }
+    use UserRoleManagerTrait;
 
     public function preRender(Request $request): void
     {
         $component = new Component('view-dashboard');
         $this->setComponent($component);
 
-        $isLeaveModuleEnabled = false;
-        $isTimeModuleEnabled = false;
+        $dataGroups = [
+            'dashboard_subunit_widget',
+            'dashboard_location_widget',
+            'dashboard_leave_widget',
+            'dashboard_time_widget'
+        ];
+        $permissions = $this->getUserRoleManagerHelper()
+            ->geEntityIndependentDataGroupPermissionCollection($dataGroups);
 
-        foreach ($this->getModuleService()->getModuleList() as $module) {
-            if ($module->getName() === 'leave') {
-                $isLeaveModuleEnabled = $module->getStatus();
-            }
-            if ($module->getName() === 'time') {
-                $isTimeModuleEnabled = $module->getStatus();
-            }
-        }
-
-        // TODO: Refactor data group permisssions
         $this->getContext()->set(
             VueControllerHelper::PERMISSIONS,
-            [
-                'admin_widgets' => [
-                    'canRead' => $this->getAuthUser()->getUserRoleName() === 'Admin',
-                    'canCreate' => false,
-                    'canUpdate' => false,
-                    'canDelete' => false
-                ],
-                'leave_widget' => [
-                    'canRead' => $isLeaveModuleEnabled,
-                    'canCreate' => false,
-                    'canUpdate' => false,
-                    'canDelete' => false
-                ],
-                'time_widget' => [
-                    'canRead' => $isTimeModuleEnabled,
-                    'canCreate' => false,
-                    'canUpdate' => false,
-                    'canDelete' => false
-                ]
-            ]
+            $permissions->toArray()
         );
     }
 }
