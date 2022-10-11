@@ -19,30 +19,9 @@
 
 namespace OrangeHRM\Entity\Listener;
 
-use OrangeHRM\Core\Utility\Cryptographer;
-use OrangeHRM\Core\Utility\KeyHandler;
+use OrangeHRM\Core\Utility\EncryptionHelperTrait;
 
 abstract class BaseListener
 {
-    protected ?Cryptographer $cryptographer = null;
-
-    public function __construct()
-    {
-        if (KeyHandler::keyExists()) {
-            $this->cryptographer = new Cryptographer(KeyHandler::readKey());
-        }
-    }
-
-    protected function getCryptographer(): Cryptographer
-    {
-        return $this->cryptographer;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function encryptionEnabled(): bool
-    {
-        return !is_null($this->cryptographer);
-    }
+    use EncryptionHelperTrait;
 }
