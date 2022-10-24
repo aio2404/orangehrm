@@ -22,13 +22,7 @@
   <div class="orangehrm-buzz-post-comment">
     <oxd-divider />
     <div class="orangehrm-buzz-post-comment-add">
-      <div class="orangehrm-buzz-post-profile-image-comment">
-        <img
-          alt="profile picture"
-          class="employee-image"
-          :src="`../pim/viewPhoto/empNumber/${buzzUserId}`"
-        />
-      </div>
+      <profile-image :employee="employee"></profile-image>
       <oxd-form class="orangehrm-buzz-post-comment-input">
         <oxd-form-row>
           <oxd-grid-item>
@@ -39,36 +33,31 @@
     </div>
   </div>
 </template>
+
 <script>
+import ProfileImage from '@/orangehrmBuzzPlugin/components/ProfileImage';
+
 export default {
   name: 'ShowComments',
 
+  components: {
+    'profile-image': ProfileImage,
+  },
+
   props: {
-    isShowComments: {
-      type: Boolean,
-      default: false,
-    },
-    buzzUserId: {
-      type: Number,
+    employee: {
+      type: Object,
       required: true,
     },
   },
 };
 </script>
+
 <style lang="scss" scoped>
 .orangehrm-buzz-post-comment {
   &-add {
     display: flex;
     align-items: center;
-    & img {
-      width: 50px;
-      height: 50px;
-      flex-shrink: 0;
-      border-radius: 100%;
-      display: flex;
-      box-sizing: border-box;
-      justify-content: center;
-    }
   }
   &-input {
     width: 25rem;
