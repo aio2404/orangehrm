@@ -21,6 +21,7 @@
 <template>
   <post-modal
     :loading="isLoading"
+    :disabled="isDisabled"
     :title="$t('buzz.share_photos')"
     @submit="onSubmit"
     @close="$emit('close', false)"
@@ -42,7 +43,7 @@ import {
   required,
   shouldNotExceedCharLength,
 } from '@/core/util/validation/rules';
-import {reactive, toRefs} from 'vue';
+import {computed, reactive, toRefs} from 'vue';
 import {APIService} from '@/core/util/services/api.service';
 import PostModal from '@/orangehrmBuzzPlugin/components/PostModal';
 import PhotoInput from '@/orangehrmBuzzPlugin/components/PhotoInput';
@@ -90,9 +91,12 @@ export default {
         .then(() => context.emit('close', true));
     };
 
+    const isDisabled = computed(() => state.post.photos.length === 0);
+
     return {
       rules,
       onSubmit,
+      isDisabled,
       ...toRefs(state),
     };
   },
