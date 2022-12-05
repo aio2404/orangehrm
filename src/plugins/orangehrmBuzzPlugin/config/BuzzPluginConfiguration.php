@@ -19,6 +19,8 @@
 
 use OrangeHRM\Buzz\Service\BuzzAnniversaryService;
 use OrangeHRM\Buzz\Service\BuzzService;
+use OrangeHRM\Buzz\Subscriber\BuzzEmployeePurgeSubscriber;
+use OrangeHRM\Core\Traits\EventDispatcherTrait;
 use OrangeHRM\Core\Traits\ServiceContainerTrait;
 use OrangeHRM\Framework\Http\Request;
 use OrangeHRM\Framework\PluginConfigurationInterface;
@@ -27,6 +29,7 @@ use OrangeHRM\Framework\Services;
 class BuzzPluginConfiguration implements PluginConfigurationInterface
 {
     use ServiceContainerTrait;
+    use EventDispatcherTrait;
 
     /**
      * @inheritDoc
@@ -35,5 +38,7 @@ class BuzzPluginConfiguration implements PluginConfigurationInterface
     {
         $this->getContainer()->register(Services::BUZZ_ANNIVERSARY_SERVICE, BuzzAnniversaryService::class);
         $this->getContainer()->register(Services::BUZZ_SERVICE, BuzzService::class);
+
+        $this->getEventDispatcher()->addSubscriber(new BuzzEmployeePurgeSubscriber());
     }
 }
