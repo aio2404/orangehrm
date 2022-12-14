@@ -21,7 +21,7 @@ namespace OrangeHRM\Installer\Controller\Upgrader\Api;
 
 use OrangeHRM\Framework\Http\Request;
 use OrangeHRM\Installer\Controller\AbstractInstallerRestController;
-use OrangeHRM\Installer\Util\SystemConfig;
+use OrangeHRM\Installer\Util\SystemCheck;
 
 class SystemCheckAPI extends AbstractInstallerRestController
 {
@@ -30,95 +30,11 @@ class SystemCheckAPI extends AbstractInstallerRestController
      */
     protected function handleGet(Request $request): array
     {
-        $systemConfig = new SystemConfig();
+        $systemCheck = new SystemCheck();
         return [
-            'data' => [
-                [
-                    'category' => 'Environment',
-                    'checks' => [
-                        [
-                            'label' => 'PHP version',
-                            'value' => $systemConfig->isPHPVersionCompatible()
-                        ],
-                        [
-                            'label' => 'MYSQL Client',
-                            'value' => $systemConfig->isMySqlClientCompatible()
-                        ],
-                        [
-                            'label' => 'MYSQL Server',
-                            'value' => $systemConfig->isMySqlServerCompatible()
-                        ],
-                        [
-                            'label' => 'MYSQL InnoDB Support',
-                            'value' => $systemConfig->isInnoDBSupport()
-                        ],
-                        [
-                            'label' => 'Web Server',
-                            'value' => $systemConfig->isWebServerCompatible()
-                        ]
-                    ]
-                ],
-                [
-                    'category' => 'Permissions',
-                    'checks' => [
-                        [
-                            'label' => 'Write Permissions for “lib/confs”',
-                            'value' => $systemConfig->isWritableConfigDir()
-                        ],
-                        [
-                            'label' => 'Write Permissions for “src/cache”',
-                            'value' => $systemConfig->isWritableCacheDir()
-                        ],
-                        [
-                            'label' => 'Write Permissions for “src/log”',
-                            'value' => $systemConfig->isWritableLogDir()
-                        ],
-                    ]
-                ],
-                [
-                    'category' => 'Extensions',
-                    'checks' => [
-                        [
-                            'label' => 'Maximum Session idle time before timeout',
-                            'value' => $systemConfig->isMaximumSessionIdle()
-                        ],
-                        [
-                            'label' => 'Register Global turned-off',
-                            'value' => $systemConfig->isRegisterGlobalsOff()
-                        ],
-                        [
-                            'label' => 'Memory Allocated for PHP script',
-                            'value' => $systemConfig->getAllocatedMemoryStatus()
-                        ],
-                        [
-                            'label' => 'cURL Status',
-                            'value' => $systemConfig->isCurlEnabled()
-                        ],
-                        [
-                            'label' => 'SimpleXML status',
-                            'value' => $systemConfig->isSimpleXMLEnabled()
-                        ],
-                        [
-                            'label' => 'Zip extension status',
-                            'value' => $systemConfig->isZipExtensionEnabled()
-                        ],
-                        [
-                            'label' => 'Intl extension status',
-                            'value' => $systemConfig->isIntlExtensionEnabled()
-                        ],
-                        [
-                            'label' => 'GD extension status',
-                            'value' => $systemConfig->isGdExtensionEnabled()
-                        ],
-                        [
-                            'label' => 'LDAP extension status',
-                            'value' => $systemConfig->isLDAPExtensionEnabled()
-                        ],
-                    ]
-                ]
-            ],
+            'data' => $systemCheck->getSystemCheckResults(),
             'meta' => [
-                'isInterrupted' => $systemConfig->isInterruptContinue()
+                'isInterrupted' => $systemCheck->isInterruptContinue()
             ]
         ];
     }
