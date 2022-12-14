@@ -52,6 +52,9 @@
       text-align: center;
       margin-top: 2.5rem;
     }
+    &.--scroll-visible{
+      padding-right: 5px;
+    }
     @include oxd-scrollbar();
   }
 
