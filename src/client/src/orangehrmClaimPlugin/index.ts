@@ -19,9 +19,15 @@
 import ClaimEvent from '@/orangehrmClaimPlugin/pages/ClaimEvent.vue';
 import SaveClaimEvent from '@/orangehrmClaimPlugin/pages/SaveClaimEvent.vue';
 import EditClaimEvent from '@/orangehrmClaimPlugin/pages/EditClaimEvent.vue';
+import ClaimExpenseType from '@/orangehrmClaimPlugin/pages/claimExpenseTypes/ClaimExpenseType.vue';
+import SaveClaimExpenseType from '@/orangehrmClaimPlugin/pages/claimExpenseTypes/SaveClaimExpenseType.vue';
+import EditClaimExpenseType from '@/orangehrmClaimPlugin/pages/claimExpenseTypes/EditClaimExpenseType.vue';
 
 export default {
   'claim-event': ClaimEvent,
   'claim-event-create': SaveClaimEvent,
   'claim-event-edit': EditClaimEvent,
+  'claim-expense-types': ClaimExpenseType,
+  'claim-expense-type-create': SaveClaimExpenseType,
+  'claim-expense-type-edit': EditClaimExpenseType,
 };
