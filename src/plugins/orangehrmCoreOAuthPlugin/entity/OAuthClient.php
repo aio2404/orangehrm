@@ -22,23 +22,31 @@ namespace OrangeHRM\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(name="ohrm_oauth_client")
+ * @ORM\Table(name="ohrm_oauth2_clients")
  * @ORM\Entity
  */
 class OAuthClient
 {
     /**
-     * @var string
+     * @var int
      *
-     * @ORM\Column(name="client_id", type="string", length=80, nullable=false)
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private string $clientId;
+    private int $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="client_secret", type="string", length=80, nullable=false)
+     * @ORM\Column(name="name", type="string", length=255, nullable=false)
+     */
+    private string $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="client_secret", type="string", length=255, nullable=false)
      */
     private string $clientSecret;
 
@@ -50,33 +58,49 @@ class OAuthClient
     private string $redirectUri;
 
     /**
-     * @var string|null
+     * @var bool
      *
-     * @ORM\Column(name="scope", nullable=true, type="string", length=4000)
+     * @ORM\Column(name="is_confidential", type="boolean", nullable=false)
      */
-    private ?string $scope;
+    private bool $confidential;
 
     /**
-     * @var string|null
+     * @var bool
      *
-     * @ORM\Column(name="grant_types", nullable=true, type="string", length=80)
+     * @ORM\Column(name="enabled", type="boolean", nullable=false)
      */
-    private ?string $grantTypes;
+    private bool $enabled = true;
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
 
     /**
      * @return string
      */
-    public function getClientId(): string
+    public function getName(): string
     {
-        return $this->clientId;
+        return $this->name;
     }
 
     /**
-     * @param string $clientId
+     * @param string $name
      */
-    public function setClientId(string $clientId): void
+    public function setName(string $name): void
     {
-        $this->clientId = $clientId;
+        $this->name = $name;
     }
 
     /**
@@ -112,34 +136,34 @@ class OAuthClient
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function getScope(): string
+    public function isConfidential(): bool
     {
-        return $this->scope;
+        return $this->confidential;
     }
 
     /**
-     * @param string $scope
+     * @param bool $confidential
      */
-    public function setScope(string $scope): void
+    public function setConfidential(bool $confidential): void
     {
-        $this->scope = $scope;
+        $this->confidential = $confidential;
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function getGrantTypes(): string
+    public function isEnabled(): bool
     {
-        return $this->grantTypes;
+        return $this->enabled;
     }
 
     /**
-     * @param string $grantTypes
+     * @param bool $enabled
      */
-    public function setGrantTypes(string $grantTypes): void
+    public function setEnabled(bool $enabled): void
     {
-        $this->grantTypes = $grantTypes;
+        $this->enabled = $enabled;
     }
 }
