@@ -23,7 +23,6 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use OrangeHRM\Core\Controller\AbstractController;
 use OrangeHRM\Core\Controller\PublicControllerInterface;
 use OrangeHRM\Framework\Http\Request;
-use OrangeHRM\Framework\Http\Response;
 use OrangeHRM\OAuth\Traits\OAuthServerTrait;
 use OrangeHRM\OAuth\Traits\PsrHttpFactoryHelperTrait;
 use Throwable;
@@ -33,6 +32,9 @@ class TokenController extends AbstractController implements PublicControllerInte
     use OAuthServerTrait;
     use PsrHttpFactoryHelperTrait;
 
+    /**
+     * @inheritDoc
+     */
     public function handle(Request $request)
     {
         try {
@@ -47,9 +49,12 @@ class TokenController extends AbstractController implements PublicControllerInte
             return $this->getPsrHttpFactoryHelper()
                 ->createResponseFromPsr7Response($e->generateHttpResponse($psrResponse));
         } catch (Throwable $e) {
-            // TODO
-            return $this->getResponse()
-                ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+            $psrResponse = $this->getPsrHttpFactoryHelper()->createPsr7Response($this->getResponse());
+            return $this->getPsrHttpFactoryHelper()
+                ->createResponseFromPsr7Response(
+                    (OAuthServerException::serverError('An unexpected error has occurred'))
+                        ->generateHttpResponse($psrResponse)
+                );
         }
     }
 }
