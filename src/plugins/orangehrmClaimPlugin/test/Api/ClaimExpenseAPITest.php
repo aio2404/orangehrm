@@ -45,7 +45,7 @@ class ClaimExpenseAPITest extends EndpointIntegrationTestCase
             ->getMock();
         $userRoleManager->expects($this->any())
             ->method('getAccessibleEntityIds')
-            ->willReturn([1, 2, 3, 4]);
+            ->willReturn([4]);
         $this->populateFixtures('ClaimExpense.yaml');
         $this->createKernelWithMockServices([
             Services::AUTH_USER => $this->getMockAuthUser($testCaseParams),
@@ -105,7 +105,7 @@ class ClaimExpenseAPITest extends EndpointIntegrationTestCase
         $this->createKernelWithMockServices([
             Services::AUTH_USER => $this->getMockAuthUser($testCaseParams),
             Services::USER_ROLE_MANAGER => $userRoleManager
-            ]);
+        ]);
         $this->registerServices($testCaseParams);
         $api = $this->getApiEndpointMock(ClaimExpenseAPI::class, $testCaseParams);
         $this->assertValidTestCase($api, 'getOne', $testCaseParams);
