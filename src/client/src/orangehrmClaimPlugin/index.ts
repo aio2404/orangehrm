@@ -22,6 +22,7 @@ import EditClaimEvent from '@/orangehrmClaimPlugin/pages/EditClaimEvent.vue';
 import ClaimExpenseType from '@/orangehrmClaimPlugin/pages/claimExpenseTypes/ClaimExpenseType.vue';
 import SaveClaimExpenseType from '@/orangehrmClaimPlugin/pages/claimExpenseTypes/SaveClaimExpenseType.vue';
 import EditClaimExpenseType from '@/orangehrmClaimPlugin/pages/claimExpenseTypes/EditClaimExpenseType.vue';
+import SubmitClaimRequest from '@/orangehrmClaimPlugin/pages/submitClaim/SubmitClaimRequest.vue';
 
 export default {
   'claim-event': ClaimEvent,
@@ -30,4 +31,5 @@ export default {
   'claim-expense-types': ClaimExpenseType,
   'claim-expense-type-create': SaveClaimExpenseType,
   'claim-expense-type-edit': EditClaimExpenseType,
+  'submit-claim-request': SubmitClaimRequest,
 };
