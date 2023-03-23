@@ -20,13 +20,11 @@
 namespace OrangeHRM\Claim\Service;
 
 use OrangeHRM\Claim\Dao\ClaimDao;
-use OrangeHRM\Core\Traits\Auth\AuthUserTrait;
 use OrangeHRM\Core\Traits\Service\DateTimeHelperTrait;
 
 class ClaimService
 {
     use DateTimeHelperTrait;
-    use AuthUserTrait;
 
     /**
      * @var ClaimDao
