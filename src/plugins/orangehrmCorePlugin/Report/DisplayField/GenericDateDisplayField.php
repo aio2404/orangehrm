@@ -27,16 +27,14 @@ class GenericDateDisplayField extends CombinedDisplayField
 
         // Job
         'empJoinedDate' => ['entityAlias' => 'employee', 'field' => 'employee.joinedDate'],
-        'empContStartDate' => ['entityAlias' => 'employmentContract', 'field' => 'employmentContract.startDate'],
-        'empContEndDate' => ['entityAlias' => 'employmentContract', 'field' => 'employmentContract.endDate'],
         'terminationDate' => [
             'entityAlias' => 'employeeTerminationRecord',
             'field' => 'employeeTerminationRecord.date'
         ],
     ];
 
-    private string $entityAlias;
-    private string $field;
+    protected string $entityAlias;
+    protected string $field;
 
     /**
      * @param \OrangeHRM\Entity\DisplayField $displayField
