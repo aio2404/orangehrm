@@ -232,39 +232,29 @@ resource "kubernetes_job" "orangehrm_init" {
           image   = "${var.orangehrm_image}:${var.orangehrm_tag}"
           command = ["/bin/bash", "-c"]
           args = [
-            <<-EOT
-              # Install MySQL client (default-mysql-client provides mysql CLI on Debian)
-              apt-get update && apt-get install -y default-mysql-client
-              
-              # Wait for MySQL to be ready
-              echo "Waiting for MySQL to be ready..."
-              until mysql_output=$(mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e "SELECT 1;" 2>&1); do
-                rc=$?
-                echo "MySQL not ready yet, waiting... (rc=$rc)"
-                echo "mysql error: $mysql_output"
-                sleep 5
-              done
-              echo "MySQL is ready!"
-
-              # Detect existing OrangeHRM schema and skip installer if present
-              echo "Checking for existing OrangeHRM installation..."
-              existing_entries=$(mysql -N -B -h mysql --ssl=0 -u root -p${var.mysql_root_password} \
-                -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${var.mysql_database}';")
-              if [ "$existing_entries" -gt 0 ]; then
-                echo "Existing OrangeHRM schema detected, skipping CLI installer."
-                exit 0
-              fi
-              
-              # Copy config file to the right location
-              cp /config/cli_install_config.yaml /var/www/html/installer/cli_install_config.yaml
-              
-              # Run OrangeHRM CLI installation
-              echo "Initializing OrangeHRM database..."
-              cd /var/www/html/installer
-              php cli_install.php
-              
-              echo "OrangeHRM database initialization completed!"
-            EOT
+            join(" && ", [
+              "echo 'Checking available MySQL client packages...'",
+              "apt-get update",
+              "apt-cache search mysql-client",
+              "echo 'Installing MySQL client...'",
+              "apt-get install -y default-mysql-client || apt-get install -y mariadb-client || (echo 'Trying to install mysql-client-8.0...' && apt-get install -y mysql-client-8.0) || (echo 'Trying to install mysql-client-core-8.0...' && apt-get install -y mysql-client-core-8.0)",
+              "echo 'MySQL client installation completed'",
+              "echo 'Waiting for MySQL to be ready...'",
+              "until mysql_output=$(mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e 'SELECT 1;' 2>&1); do rc=$?; echo 'MySQL not ready yet, waiting... (rc='$rc')'; echo 'mysql error: '$mysql_output; sleep 5; done",
+              "echo 'MySQL is ready!'",
+              "echo 'Checking for existing OrangeHRM installation...'",
+              "echo 'Dropping existing OrangeHRM database (if present)...'",
+              "mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e \"DROP DATABASE IF EXISTS ${var.mysql_database};\"",
+              "echo 'Dropping existing OrangeHRM MySQL users (if present)...'",
+              "mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e \"DROP USER IF EXISTS '${var.mysql_user}'@'%';\"",
+              "mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e \"DROP USER IF EXISTS '${var.mysql_user}'@'localhost';\"",
+              "cp /config/cli_install_config.yaml /var/www/html/installer/cli_install_config.yaml",
+              "echo 'Initializing OrangeHRM database...'",
+              "cd /var/www/html/installer",
+              "echo 'Starting CLI installer with timeout...'",
+              "timeout 600 php cli_install.php 2>&1 | tee /tmp/install.log || { echo 'Installation timed out or failed'; echo 'Installation log:'; cat /tmp/install.log; exit 1; }",
+              "echo 'OrangeHRM database initialization completed!'"
+            ])
           ]
           env {
             name  = "DB_HOST"
@@ -316,6 +306,11 @@ resource "kubernetes_job" "orangehrm_init" {
     }
     backoff_limit              = 3
     ttl_seconds_after_finished = 300
+    active_deadline_seconds    = 900 # 15 minutes timeout for the entire job
+  }
+  timeouts {
+    create = "5m"
+    update = "5m"
   }
   depends_on = [kubernetes_deployment.mysql, kubernetes_config_map.orangehrm_install_config]
 }
@@ -491,53 +486,29 @@ resource "kubernetes_job" "load_employees" {
           image   = "${var.orangehrm_image}:${var.orangehrm_tag}"
           command = ["/bin/bash", "-c"]
           args = [
-            <<-EOT
-              set -e
-              export DEBIAN_FRONTEND=noninteractive
-
-              # Install curl and MySQL client binary
-              apt-get update && apt-get install -y --no-install-recommends curl default-mysql-client
-              rm -rf /var/lib/apt/lists/*
-
-              WORK_DIR=$(mktemp -d)
-              trap 'rm -rf "$WORK_DIR"' EXIT
-              cp -r /scripts/. "$WORK_DIR/"
-
-              # Wait for MySQL to be ready using root credentials
-              echo "Waiting for MySQL to be ready..."
-              until mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e "SELECT 1;" > /dev/null 2>&1; do
-                echo "MySQL not ready yet, waiting..."
-                sleep 5
-              done
-              echo "MySQL is ready!"
-
-              # Ensure application database and user exist (idempotent)
-              echo "Ensuring OrangeHRM user '${var.mysql_user}' exists..."
-              mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} <<-SQL
-                CREATE DATABASE IF NOT EXISTS ${var.mysql_database};
-                CREATE USER IF NOT EXISTS '${var.mysql_user}'@'%' IDENTIFIED BY '${var.mysql_password}';
-                ALTER USER '${var.mysql_user}'@'%' IDENTIFIED WITH mysql_native_password BY '${var.mysql_password}';
-                GRANT ALL PRIVILEGES ON ${var.mysql_database}.* TO '${var.mysql_user}'@'%';
-                FLUSH PRIVILEGES;
-              SQL
-
-              # Wait for OrangeHRM to be ready
-              echo "Waiting for OrangeHRM to be ready..."
-              until curl_output=$(curl -f http://orangehrm/ 2>&1 >/dev/null); do
-                rc=$?
-                echo "OrangeHRM not ready yet, waiting... (rc=$rc)"
-                echo "curl error: $curl_output"
-                sleep 10
-              done
-              echo "OrangeHRM is ready!"
-
-              # Load employee data
-              echo "Loading employee data..."
-              DB_HOST=mysql DB_USER=${var.mysql_user} DB_PASS=${var.mysql_password} DB_NAME=${var.mysql_database} \
-                php "$WORK_DIR/load-employees.php"
-
-              echo "Employee data loading completed!"
-            EOT
+            join(" && ", [
+              "set -e",
+              "export DEBIAN_FRONTEND=noninteractive",
+              "echo 'Installing required packages...'",
+              "apt-get update",
+              "apt-get install -y --no-install-recommends curl default-mysql-client || apt-get install -y --no-install-recommends curl mariadb-client",
+              "rm -rf /var/lib/apt/lists/*",
+              "echo 'Creating temporary work directory...'",
+              "WORK_DIR=$(mktemp -d)",
+              "trap 'rm -rf \"$WORK_DIR\"' EXIT",
+              "cp -r /scripts/. \"$WORK_DIR/\"",
+              "echo 'Waiting for MySQL to be ready...'",
+              "until mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e 'SELECT 1;' > /dev/null 2>&1; do echo 'MySQL not ready yet, waiting...'; sleep 5; done",
+              "echo 'MySQL is ready!'",
+              "echo 'Ensuring OrangeHRM user exists...'",
+              "mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e \"CREATE DATABASE IF NOT EXISTS ${var.mysql_database}; CREATE USER IF NOT EXISTS '${var.mysql_user}'@'%' IDENTIFIED BY '${var.mysql_password}'; ALTER USER '${var.mysql_user}'@'%' IDENTIFIED WITH mysql_native_password BY '${var.mysql_password}'; GRANT ALL PRIVILEGES ON ${var.mysql_database}.* TO '${var.mysql_user}'@'%'; FLUSH PRIVILEGES;\"",
+              "echo 'Waiting for OrangeHRM to be ready...'",
+              "until curl_output=$(curl -f http://orangehrm/ 2>&1 >/dev/null); do rc=$?; echo 'OrangeHRM not ready yet, waiting... (rc='$rc')'; echo 'curl error: '$curl_output; sleep 10; done",
+              "echo 'OrangeHRM is ready!'",
+              "echo 'Loading employee data...'",
+              "DB_HOST=mysql DB_USER=${var.mysql_user} DB_PASS=${var.mysql_password} DB_NAME=${var.mysql_database} php \"$WORK_DIR/load-employees.php\"",
+              "echo 'Employee data loading completed!'"
+            ])
           ]
           env {
             name  = "DB_HOST"
@@ -615,55 +586,29 @@ resource "kubernetes_job" "load_candidates" {
           image   = "${var.orangehrm_image}:${var.orangehrm_tag}"
           command = ["/bin/bash", "-c"]
           args = [
-            <<-EOT
-              set -e
-              export DEBIAN_FRONTEND=noninteractive
-
-              # Install curl and MySQL client binary
-              apt-get update && apt-get install -y --no-install-recommends curl default-mysql-client
-              rm -rf /var/lib/apt/lists/*
-
-              WORK_DIR=$(mktemp -d)
-              trap 'rm -rf "$WORK_DIR"' EXIT
-              cp -r /scripts/. "$WORK_DIR/"
-
-              # Wait for MySQL to be ready using root credentials
-              echo "Waiting for MySQL to be ready..."
-              until mysql_output=$(mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e "SELECT 1;" 2>&1); do
-                rc=$?
-                echo "MySQL not ready yet, waiting... (rc=$rc)"
-                echo "mysql error: $mysql_output"
-                sleep 5
-              done
-              echo "MySQL is ready!"
-
-              # Ensure application database and user exist (idempotent)
-              echo "Ensuring OrangeHRM user '${var.mysql_user}' exists..."
-              mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} <<-SQL
-                CREATE DATABASE IF NOT EXISTS ${var.mysql_database};
-                CREATE USER IF NOT EXISTS '${var.mysql_user}'@'%' IDENTIFIED BY '${var.mysql_password}';
-                ALTER USER '${var.mysql_user}'@'%' IDENTIFIED WITH mysql_native_password BY '${var.mysql_password}';
-                GRANT ALL PRIVILEGES ON ${var.mysql_database}.* TO '${var.mysql_user}'@'%';
-                FLUSH PRIVILEGES;
-              SQL
-
-              # Wait for OrangeHRM to be ready
-              echo "Waiting for OrangeHRM to be ready..."
-              until curl_output=$(curl -f http://orangehrm/ 2>&1 >/dev/null); do
-                rc=$?
-                echo "OrangeHRM not ready yet, waiting... (rc=$rc)"
-                echo "curl error: $curl_output"
-                sleep 10
-              done
-              echo "OrangeHRM is ready!"
-
-              # Load candidate data
-              echo "Loading candidate data..."
-              DB_HOST=mysql DB_USER=${var.mysql_user} DB_PASS=${var.mysql_password} DB_NAME=${var.mysql_database} \
-                php "$WORK_DIR/load-candidates.php"
-
-              echo "Candidate data loading completed!"
-            EOT
+            join(" && ", [
+              "set -e",
+              "export DEBIAN_FRONTEND=noninteractive",
+              "echo 'Installing required packages...'",
+              "apt-get update",
+              "apt-get install -y --no-install-recommends curl default-mysql-client || apt-get install -y --no-install-recommends curl mariadb-client",
+              "rm -rf /var/lib/apt/lists/*",
+              "echo 'Creating temporary work directory...'",
+              "WORK_DIR=$(mktemp -d)",
+              "trap 'rm -rf \"$WORK_DIR\"' EXIT",
+              "cp -r /scripts/. \"$WORK_DIR/\"",
+              "echo 'Waiting for MySQL to be ready...'",
+              "until mysql_output=$(mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e 'SELECT 1;' 2>&1); do rc=$?; echo 'MySQL not ready yet, waiting... (rc='$rc')'; echo 'mysql error: '$mysql_output; sleep 5; done",
+              "echo 'MySQL is ready!'",
+              "echo 'Ensuring OrangeHRM user exists...'",
+              "mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e \"CREATE DATABASE IF NOT EXISTS ${var.mysql_database}; CREATE USER IF NOT EXISTS '${var.mysql_user}'@'%' IDENTIFIED BY '${var.mysql_password}'; ALTER USER '${var.mysql_user}'@'%' IDENTIFIED WITH mysql_native_password BY '${var.mysql_password}'; GRANT ALL PRIVILEGES ON ${var.mysql_database}.* TO '${var.mysql_user}'@'%'; FLUSH PRIVILEGES;\"",
+              "echo 'Waiting for OrangeHRM to be ready...'",
+              "until curl_output=$(curl -f http://orangehrm/ 2>&1 >/dev/null); do rc=$?; echo 'OrangeHRM not ready yet, waiting... (rc='$rc')'; echo 'curl error: '$curl_output; sleep 10; done",
+              "echo 'OrangeHRM is ready!'",
+              "echo 'Loading candidate data...'",
+              "DB_HOST=mysql DB_USER=${var.mysql_user} DB_PASS=${var.mysql_password} DB_NAME=${var.mysql_database} php \"$WORK_DIR/load-candidates.php\"",
+              "echo 'Candidate data loading completed!'"
+            ])
           ]
           env {
             name  = "DB_HOST"
@@ -725,50 +670,29 @@ resource "null_resource" "orangehrm_access" {
   count = var.environment == "minikube" ? 1 : 0
 
   provisioner "local-exec" {
-    command = <<-EOT
-      # Check if kubectl is available
-      if command -v kubectl >/dev/null 2>&1; then
-        echo "🌐 Setting up OrangeHRM access..."
-        echo ""
-        
-        # Configure hosts file for custom domain
-        HOSTS_ENTRY="127.0.0.1 ${var.ingress_host}"
-        if ! grep -q "${var.ingress_host}" /etc/hosts; then
-          echo "📝 Adding ${var.ingress_host} to /etc/hosts..."
-          echo "$HOSTS_ENTRY" | sudo tee -a /etc/hosts
-        else
-          echo "✅ ${var.ingress_host} already configured in /etc/hosts"
-        fi
-        
-        echo ""
-        echo "🔌 Starting port forwarding to localhost:8080..."
-        echo "OrangeHRM will be available at: http://${var.ingress_host}:8080"
-        echo ""
-        echo "🚀 Opening OrangeHRM in your browser..."
-        sleep 3
-        
-        # Start port forwarding in background
-        kubectl port-forward -n ${var.namespace} service/orangehrm 8080:80 &
-        PORT_FORWARD_PID=$!
-        
-        # Wait a moment for port forwarding to be ready
-        sleep 5
-        
-        # Open browser
-        open "http://${var.ingress_host}:8080" 2>/dev/null || xdg-open "http://${var.ingress_host}:8080" 2>/dev/null || echo "Please open http://${var.ingress_host}:8080 in your browser"
-        
-        echo ""
-        echo "✅ OrangeHRM is now accessible at: http://${var.ingress_host}:8080"
-        echo "🔑 Default credentials: admin / admin"
-        echo ""
-        echo "📝 To stop port forwarding, run: kill $PORT_FORWARD_PID"
-        echo "   Or find the process with: ps aux | grep 'kubectl port-forward'"
-        
-      else
-        echo "⚠️  kubectl not found. You can access OrangeHRM using:"
-        echo "   kubectl port-forward -n ${var.namespace} service/orangehrm 8080:80"
-        echo "   Then open http://localhost:8080 in your browser"
-      fi
+    interpreter = ["powershell.exe", "-NoProfile", "-Command"]
+    command     = <<-EOT
+      $ErrorActionPreference = "Stop"
+      $namespace = "${var.namespace}"
+      $url = "http://localhost:8080"
+
+      Write-Host "🌐 Setting up OrangeHRM access..."
+      Write-Host "🔌 Starting port forwarding to localhost:8080..."
+
+      $arguments = "port-forward -n $namespace service/orangehrm 8080:80"
+      $portForward = Start-Process -FilePath "kubectl" -ArgumentList $arguments -NoNewWindow -PassThru
+
+      Start-Sleep -Seconds 5
+      Write-Host "🚀 Opening OrangeHRM in your browser..."
+      try {
+        Start-Process $url | Out-Null
+      } catch {
+        Write-Host "Please open $url in your browser"
+      }
+
+      Write-Host "✅ OrangeHRM is now accessible at: $url"
+      Write-Host "🔑 Default credentials: admin / admin"
+      Write-Host "📝 To stop port forwarding, run: Stop-Process -Id $($portForward.Id)"
     EOT
   }
 
