@@ -1,5 +1,9 @@
 # OrangeHRM Terraform Deployment Guide
 
+## 🚀 OrangeHRM Terraform Deployment Guide
+
+This guide provides complete instructions for deploying OrangeHRM on Kubernetes using Terraform, with full automation and cross-platform compatibility.
+
 ## Prerequisites
 
 Before deploying OrangeHRM with Terraform, ensure you have the following tools installed and configured:
@@ -97,12 +101,52 @@ terraform apply
 
 ### 4. Access OrangeHRM
 
-After successful deployment, the Minikube service tunnel will automatically open OrangeHRM in your default browser.
+After successful deployment, you need to manually set up port forwarding to access OrangeHRM:
+
+**Step 1: Set up port forwarding**
+
+```bash
+kubectl port-forward -n orangehrm service/orangehrm 8080:80
+```
+
+**Step 2: Configure custom domain (optional but recommended)**
+
+To use the custom domain `orangehrm.local`, you need to add it to your hosts file:
+
+**On Windows:**
+
+1. Open Notepad as Administrator
+2. Open the file: `C:\Windows\System32\drivers\etc\hosts`
+3. Add this line at the end:
+   ```
+   127.0.0.1 orangehrm.local
+   ```
+4. Save the file
+
+**On macOS/Linux:**
+
+1. Open terminal and run:
+   ```bash
+   sudo nano /etc/hosts
+   ```
+2. Add this line at the end:
+   ```
+   127.0.0.1 orangehrm.local
+   ```
+3. Save the file (Ctrl+X, then Y, then Enter)
+
+**Step 3: Open OrangeHRM in your browser**
+
+- Navigate to: `http://orangehrm.local:8080` (recommended)
+- Or use: `http://localhost:8080`
+- The application will load and you can log in
 
 **Default Credentials:**
 
 - Username: `admin`
 - Password: `admin`
+
+**Note:** Keep the port forwarding command running in your terminal. To stop it, press `Ctrl+C`.
 
 ## Detailed Deployment Steps
 
@@ -215,6 +259,25 @@ After successful deployment, the Minikube service tunnel will automatically open
 ### Custom Domain Access (Recommended)
 
 OrangeHRM is automatically configured with a custom domain for easy access:
+
+**Why use orangehrm.local?**
+
+- Professional URL instead of IP addresses
+- Easier to remember and share
+- Better for development and testing
+- Matches production-like environment
+
+**How to configure:**
+
+1. **Add to hosts file** (see Step 2 above)
+2. **Start port forwarding**: `kubectl port-forward -n orangehrm service/orangehrm 8080:80`
+3. **Access OrangeHRM**: `http://orangehrm.local:8080`
+
+**Troubleshooting:**
+
+- If `orangehrm.local` doesn't work, use `http://localhost:8080`
+- Make sure you added the entry to your hosts file correctly
+- Restart your browser after modifying hosts file
 
 ```hcl
 # Custom domain configuration
@@ -514,4 +577,3 @@ minikube delete
 
 - [Terraform Community](https://discuss.hashicorp.com/c/terraform-core)
 - [Kubernetes Community](https://kubernetes.io/community/)
-

@@ -64,6 +64,51 @@ ingress_host = "orangehrm.local"
 
 ```
 
+## 🌐 Accessing OrangeHRM
+
+### Method 1: Port Forward (Recommended)
+
+```bash
+# Port forward to access OrangeHRM
+kubectl port-forward -n orangehrm service/orangehrm 8080:80
+
+# Access at: http://localhost:8080
+# Username: admin
+# Password: admin
+```
+
+### Method 2: Custom Domain (orangehrm.local)
+
+If you want to use `orangehrm.local` instead of localhost:
+
+#### Windows
+
+```powershell
+# Run as Administrator
+Add-Content -Path C:\Windows\System32\drivers\etc\hosts -Value "127.0.0.1 orangehrm.local"
+
+# Then access: http://orangehrm.local
+```
+
+#### Linux/Mac
+
+```bash
+# Add to hosts file
+echo "127.0.0.1 orangehrm.local" | sudo tee -a /etc/hosts
+
+# Then access: http://orangehrm.local
+```
+
+### Method 3: Minikube Service
+
+```bash
+# Get service URL
+minikube service orangehrm -n orangehrm --url
+
+# Or open directly in browser
+minikube service orangehrm -n orangehrm
+```
+
 ## 🔧 Commands
 
 ```bash
@@ -87,6 +132,8 @@ terraform destroy
 - **Minikube not starting**: Ensure sufficient system resources (4GB RAM, 2 CPU cores)
 - **Pods stuck pending**: Check node resources and storage classes
 - **MySQL connection issues**: Verify MySQL pod logs and service status
+- **Cannot access orangehrm.local**: Add `127.0.0.1 orangehrm.local` to your hosts file
+- **Port forward not working**: Check if the service is running with `kubectl get svc -n orangehrm`
 
 ### Debug Commands
 
@@ -99,6 +146,15 @@ kubectl logs -n orangehrm deployment/orangehrm
 
 # Check services
 kubectl get services -n orangehrm
+
+# Check ingress (if using custom domain)
+kubectl get ingress -n orangehrm
+
+# Test port forward
+kubectl port-forward -n orangehrm service/orangehrm 8080:80
+
+# Check if orangehrm.local resolves
+nslookup orangehrm.local
 ```
 
 ## 📁 Project Structure
