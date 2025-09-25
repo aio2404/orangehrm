@@ -64,6 +64,43 @@ license:
   depends_on = [kubernetes_namespace.orangehrm]
 }
 
+# OrangeHRM Conf.php ConfigMap
+resource "kubernetes_config_map" "orangehrm_conf_php" {
+  metadata {
+    name      = "orangehrm-conf-php"
+    namespace = kubernetes_namespace.orangehrm.metadata[0].name
+  }
+  data = {
+    "Conf.php" = <<-EOT
+<?php
+class Conf
+{
+    private string $dbHost;
+    private string $dbPort;
+    private string $dbName;
+    private string $dbUser;
+    private string $dbPass;
+
+    public function __construct()
+    {
+        $this->dbHost = 'mysql';
+        $this->dbPort = '3306';
+        $this->dbName = '${var.mysql_database}';
+        $this->dbUser = '${var.mysql_user}';
+        $this->dbPass = '${var.mysql_password}';
+    }
+
+    public function getDbHost(): string { return $this->dbHost; }
+    public function getDbPort(): string { return $this->dbPort; }
+    public function getDbName(): string { return $this->dbName; }
+    public function getDbUser(): string { return $this->dbUser; }
+    public function getDbPass(): string { return $this->dbPass; }
+}
+    EOT
+  }
+  depends_on = [kubernetes_namespace.orangehrm]
+}
+
 # MySQL Persistent Volume Claim
 resource "kubernetes_persistent_volume_claim" "mysql_pvc" {
   metadata {
@@ -233,16 +270,13 @@ resource "kubernetes_job" "orangehrm_init" {
           command = ["/bin/bash", "-c"]
           args = [
             join(" && ", [
-              "echo 'Checking available MySQL client packages...'",
-              "apt-get update",
-              "apt-cache search mysql-client",
+              "set -e",
               "echo 'Installing MySQL client...'",
-              "apt-get install -y default-mysql-client || apt-get install -y mariadb-client || (echo 'Trying to install mysql-client-8.0...' && apt-get install -y mysql-client-8.0) || (echo 'Trying to install mysql-client-core-8.0...' && apt-get install -y mysql-client-core-8.0)",
-              "echo 'MySQL client installation completed'",
+              "apt-get update",
+              "apt-get install -y default-mysql-client || apt-get install -y mariadb-client || apt-get install -y mysql-client || echo 'MySQL client installation failed, continuing...'",
               "echo 'Waiting for MySQL to be ready...'",
-              "until mysql_output=$(mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e 'SELECT 1;' 2>&1); do rc=$?; echo 'MySQL not ready yet, waiting... (rc='$rc')'; echo 'mysql error: '$mysql_output; sleep 5; done",
+              "until mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e 'SELECT 1;' >/dev/null 2>&1; do echo 'MySQL not ready yet, waiting...'; sleep 5; done",
               "echo 'MySQL is ready!'",
-              "echo 'Checking for existing OrangeHRM installation...'",
               "echo 'Dropping existing OrangeHRM database (if present)...'",
               "mysql -h mysql --ssl=0 -u root -p${var.mysql_root_password} -e \"DROP DATABASE IF EXISTS ${var.mysql_database};\"",
               "echo 'Dropping existing OrangeHRM MySQL users (if present)...'",
@@ -251,9 +285,11 @@ resource "kubernetes_job" "orangehrm_init" {
               "cp /config/cli_install_config.yaml /var/www/html/installer/cli_install_config.yaml",
               "echo 'Initializing OrangeHRM database...'",
               "cd /var/www/html/installer",
-              "echo 'Starting CLI installer with timeout...'",
-              "timeout 600 php cli_install.php 2>&1 | tee /tmp/install.log || { echo 'Installation timed out or failed'; echo 'Installation log:'; cat /tmp/install.log; exit 1; }",
-              "echo 'OrangeHRM database initialization completed!'"
+              "timeout 600 php cli_install.php 2>&1 | tee /tmp/install.log || (echo 'Installation timed out or failed'; echo 'Installation log:'; cat /tmp/install.log; exit 1)",
+              "echo 'OrangeHRM database initialization completed!'",
+              "mkdir -p /var/www/html/src/config",
+              "cp /conf-php/Conf.php /var/www/html/src/config/Conf.php",
+              "echo 'Configuration file created'"
             ])
           ]
           env {
@@ -284,6 +320,10 @@ resource "kubernetes_job" "orangehrm_init" {
             name       = "install-config"
             mount_path = "/config"
           }
+          volume_mount {
+            name       = "conf-php"
+            mount_path = "/conf-php"
+          }
           # Resource limits
           resources {
             limits = {
@@ -300,6 +340,12 @@ resource "kubernetes_job" "orangehrm_init" {
           name = "install-config"
           config_map {
             name = kubernetes_config_map.orangehrm_install_config.metadata[0].name
+          }
+        }
+        volume {
+          name = "conf-php"
+          config_map {
+            name = kubernetes_config_map.orangehrm_conf_php.metadata[0].name
           }
         }
       }
@@ -354,6 +400,34 @@ resource "kubernetes_deployment" "orangehrm" {
         }
       }
       spec {
+        init_container {
+          name    = "orangehrm-config-init"
+          image   = "${var.orangehrm_image}:${var.orangehrm_tag}"
+          command = ["/bin/bash", "-c"]
+          args = [
+            join(" && ", [
+              "set -e",
+              "echo 'Creating OrangeHRM configuration files...'",
+              "mkdir -p /var/www/html/lib/confs",
+              "mkdir -p /var/www/html/src/config",
+              "cp /conf-php/Conf.php /var/www/html/lib/confs/Conf.php",
+              "echo '<?php' > /var/www/html/src/config/log_settings.php",
+              "echo 'return [' >> /var/www/html/src/config/log_settings.php",
+              "echo '    \"log_level\" => \"error\",' >> /var/www/html/src/config/log_settings.php",
+              "echo '    \"log_file\" => \"/var/www/html/src/log/orangehrm.log\"' >> /var/www/html/src/config/log_settings.php",
+              "echo '];' >> /var/www/html/src/config/log_settings.php",
+              "echo 'Configuration files created successfully!'"
+            ])
+          ]
+          volume_mount {
+            name       = "orangehrm-config"
+            mount_path = "/var/www/html/lib/confs"
+          }
+          volume_mount {
+            name       = "conf-php"
+            mount_path = "/conf-php"
+          }
+        }
         container {
           image = "${var.orangehrm_image}:${var.orangehrm_tag}"
           name  = "orangehrm"
@@ -379,6 +453,10 @@ resource "kubernetes_deployment" "orangehrm" {
           env {
             name  = "DB_PASS"
             value = var.mysql_password
+          }
+          volume_mount {
+            name       = "orangehrm-config"
+            mount_path = "/var/www/html/lib/confs"
           }
           # Health checks
           liveness_probe {
@@ -413,6 +491,16 @@ resource "kubernetes_deployment" "orangehrm" {
             }
           }
         }
+        volume {
+          name = "orangehrm-config"
+          empty_dir {}
+        }
+        volume {
+          name = "conf-php"
+          config_map {
+            name = kubernetes_config_map.orangehrm_conf_php.metadata[0].name
+          }
+        }
       }
     }
   }
@@ -443,6 +531,53 @@ resource "kubernetes_service" "orangehrm" {
     type = "NodePort"
   }
   depends_on = [kubernetes_deployment.orangehrm]
+}
+
+# Job to complete OrangeHRM web installation
+resource "kubernetes_job" "orangehrm_web_setup" {
+  count = var.environment == "minikube" ? 1 : 0
+  metadata {
+    name      = "orangehrm-web-setup"
+    namespace = kubernetes_namespace.orangehrm.metadata[0].name
+  }
+  spec {
+    template {
+      metadata {
+        labels = {
+          app = "orangehrm-web-setup"
+        }
+      }
+      spec {
+        restart_policy = "Never"
+        container {
+          name    = "orangehrm-web-setup"
+          image   = "curlimages/curl:latest"
+          command = ["/bin/sh", "-c"]
+          args = [
+            join(" && ", [
+              "echo 'Waiting for OrangeHRM web service to be ready...'",
+              "until curl -f http://orangehrm/ >/dev/null 2>&1; do echo 'OrangeHRM web service not ready yet, waiting...'; sleep 10; done",
+              "echo 'OrangeHRM web service is ready!'",
+              "echo 'Completing web installation steps...'",
+              "curl -X POST http://orangehrm/installer/api/send-data/installer-start -H 'Content-Type: application/json' -d '{}' || echo 'Installer start notification failed'",
+              "curl -X POST http://orangehrm/installer/api/installation/database -H 'Content-Type: application/json' -d '{}' || echo 'Database creation step failed'",
+              "curl -X POST http://orangehrm/installer/api/installation/pre-migration -H 'Content-Type: application/json' -d '{}' || echo 'Pre-migration check failed'",
+              "curl -X POST http://orangehrm/installer/api/installation/migration -H 'Content-Type: application/json' -d '{\"version\":\"0.0\"}' || echo 'Migration step failed'",
+              "curl -X POST http://orangehrm/installer/api/installation/instance -H 'Content-Type: application/json' -d '{}' || echo 'Instance creation step failed'",
+              "curl -X POST http://orangehrm/installer/api/installation/database-user -H 'Content-Type: application/json' -d '{}' || echo 'Database user creation step failed'",
+              "curl -X POST http://orangehrm/installer/api/installation/config-file -H 'Content-Type: application/json' -d '{}' || echo 'Config file creation step failed'",
+              "curl -X POST http://orangehrm/installer/api/clean-up-install -H 'Content-Type: application/json' -d '{}' || echo 'Cleanup step failed'",
+              "echo 'OrangeHRM web installation fully completed!'"
+            ])
+          ]
+        }
+      }
+    }
+    backoff_limit              = 3
+    ttl_seconds_after_finished = 300
+    active_deadline_seconds    = 600 # 10 minutes timeout
+  }
+  depends_on = [kubernetes_service.orangehrm]
 }
 
 # ConfigMap for data loading scripts
@@ -663,41 +798,4 @@ resource "kubernetes_job" "load_candidates" {
     ttl_seconds_after_finished = 300
   }
   depends_on = [kubernetes_job.load_employees, kubernetes_config_map.data_scripts]
-}
-
-# Provisioner to setup port forwarding and custom domain after deployment
-resource "null_resource" "orangehrm_access" {
-  count = var.environment == "minikube" ? 1 : 0
-
-  provisioner "local-exec" {
-    interpreter = ["powershell.exe", "-NoProfile", "-Command"]
-    command     = <<-EOT
-      $ErrorActionPreference = "Stop"
-      $namespace = "${var.namespace}"
-      $url = "http://localhost:8080"
-
-      Write-Host "🌐 Setting up OrangeHRM access..."
-      Write-Host "🔌 Starting port forwarding to localhost:8080..."
-
-      $arguments = "port-forward -n $namespace service/orangehrm 8080:80"
-      $portForward = Start-Process -FilePath "kubectl" -ArgumentList $arguments -NoNewWindow -PassThru
-
-      Start-Sleep -Seconds 5
-      Write-Host "🚀 Opening OrangeHRM in your browser..."
-      try {
-        Start-Process $url | Out-Null
-      } catch {
-        Write-Host "Please open $url in your browser"
-      }
-
-      Write-Host "✅ OrangeHRM is now accessible at: $url"
-      Write-Host "🔑 Default credentials: admin / admin"
-      Write-Host "📝 To stop port forwarding, run: Stop-Process -Id $($portForward.Id)"
-    EOT
-  }
-
-  depends_on = [
-    kubernetes_service.orangehrm,
-    kubernetes_job.load_candidates
-  ]
 }
