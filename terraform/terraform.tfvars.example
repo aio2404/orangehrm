@@ -85,6 +85,9 @@ mysql_tag = "8.0"
 # Custom storage size for MySQL
 # mysql_storage_size = "10Gi"
 
-# Custom admin credentials (will be set during OrangeHRM installation)
-# admin_username = "admin"
-# admin_password = "admin"
+# OrangeHRM admin credentials
+orangehrm_admin_username = "admin"
+orangehrm_admin_password = "SecurePass123!"
+
+# User password (same for all employees)
+default_user_password = "UserDemo2024!"

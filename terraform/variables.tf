@@ -84,3 +84,24 @@ variable "ingress_host" {
   default     = "orangehrm.local"
 }
 
+variable "orangehrm_admin_username" {
+  description = "OrangeHRM admin username"
+  type        = string
+  default     = "admin"
+}
+
+variable "orangehrm_admin_password" {
+  description = "OrangeHRM admin password"
+  type        = string
+  default     = "SecurePass123!"
+  sensitive   = true
+}
+
+variable "default_user_password" {
+  description = "Default password for regular users (employees)"
+  type        = string
+  default     = "SecurePass123!"
+  sensitive   = true
+}
+
+

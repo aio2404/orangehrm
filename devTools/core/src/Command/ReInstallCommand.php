@@ -120,12 +120,13 @@ class ReInstallCommand extends Command
         // Instance data
         StateContainer::getInstance()->storeInstanceData($organizationName, $countryCode, 'en_US', 'UTC');
 
-        // Admin user
+        // Admin user - use environment variable for password
+        $adminPassword = getenv('ADMIN_PASSWORD') ?: 'admin';
         StateContainer::getInstance()->storeAdminUserData(
             $firstName,
             $lastName,
             $email,
-            new UserCredential($adminUsername, 'admin123'),
+            new UserCredential($adminUsername, $adminPassword),
             $contact
         );
 
@@ -142,7 +143,7 @@ class ReInstallCommand extends Command
             $qb->where($qb->expr()->isNull('user.created_by'))
                 ->executeQuery();
         } else {
-            $io->note("Username: $adminUsername, Password: admin123");
+            $io->note("Username: $adminUsername, Password: $adminPassword");
         }
 
         $io->success('Done');
