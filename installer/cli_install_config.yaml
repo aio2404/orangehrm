@@ -15,8 +15,8 @@ organization:
   country: US
 
 admin:
-  adminUserName: Admin
-  adminPassword: Ohrm@1423
+  adminUserName: admin
+  adminPassword: hsgTH;:?jkiT1s
   adminEmployeeFirstName: OrangeHRM
   adminEmployeeLastName: Admin
   workEmail: admin@example.com

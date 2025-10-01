@@ -49,8 +49,8 @@ organization:
   country: US
 
 admin:
-  adminUserName: admin
-  adminPassword: admin
+  adminUserName: ${var.orangehrm_admin_username}
+  adminPassword: ${var.orangehrm_admin_password}
   adminEmployeeFirstName: OrangeHRM
   adminEmployeeLastName: Admin
   workEmail: admin@example.com
@@ -641,7 +641,7 @@ resource "kubernetes_job" "load_employees" {
               "until curl_output=$(curl -f http://orangehrm/ 2>&1 >/dev/null); do rc=$?; echo 'OrangeHRM not ready yet, waiting... (rc='$rc')'; echo 'curl error: '$curl_output; sleep 10; done",
               "echo 'OrangeHRM is ready!'",
               "echo 'Loading employee data...'",
-              "DB_HOST=mysql DB_USER=${var.mysql_user} DB_PASS=${var.mysql_password} DB_NAME=${var.mysql_database} php \"$WORK_DIR/load-employees.php\"",
+              "DB_HOST=mysql DB_USER='${var.mysql_user}' DB_PASS='${var.mysql_password}' DB_NAME='${var.mysql_database}' DEFAULT_USER_PASSWORD='${var.default_user_password}' ADMIN_PASSWORD='${var.orangehrm_admin_password}' php \"$WORK_DIR/load-employees.php\"",
               "echo 'Employee data loading completed!'"
             ])
           ]
@@ -741,7 +741,7 @@ resource "kubernetes_job" "load_candidates" {
               "until curl_output=$(curl -f http://orangehrm/ 2>&1 >/dev/null); do rc=$?; echo 'OrangeHRM not ready yet, waiting... (rc='$rc')'; echo 'curl error: '$curl_output; sleep 10; done",
               "echo 'OrangeHRM is ready!'",
               "echo 'Loading candidate data...'",
-              "DB_HOST=mysql DB_USER=${var.mysql_user} DB_PASS=${var.mysql_password} DB_NAME=${var.mysql_database} php \"$WORK_DIR/load-candidates.php\"",
+              "DB_HOST=mysql DB_USER='${var.mysql_user}' DB_PASS='${var.mysql_password}' DB_NAME='${var.mysql_database}' DEFAULT_USER_PASSWORD='${var.default_user_password}' php \"$WORK_DIR/load-candidates.php\"",
               "echo 'Candidate data loading completed!'"
             ])
           ]

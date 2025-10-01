@@ -144,7 +144,7 @@ To use the custom domain `orangehrm.local`, you need to add it to your hosts fil
 **Default Credentials:**
 
 - Username: `admin`
-- Password: `admin`
+- Password: `SecurePass123!`
 
 **Note:** Keep the port forwarding command running in your terminal. To stop it, press `Ctrl+C`.
 
@@ -351,6 +351,80 @@ ingress_host = "orangehrm.local"
 
 4. Access OrangeHRM at: `http://orangehrm.local`
 
+### Password Configuration
+
+OrangeHRM supports configurable passwords for both admin and regular users through Terraform variables.
+
+#### Admin Password Configuration
+
+The admin password can be configured using the `orangehrm_admin_password` variable:
+
+```hcl
+# In terraform.tfvars
+orangehrm_admin_username = "admin"
+orangehrm_admin_password = "YourSecureAdminPassword123!"
+```
+
+**Default values:**
+
+- Username: `admin`
+- Password: `admin`
+
+#### User Password Configuration
+
+All regular users (employees) will use the same password, configurable via the `default_user_password` variable:
+
+```hcl
+# In terraform.tfvars
+default_user_password = "YourSecureUserPassword123!"
+```
+
+**Default value:** `SecurePass123!`
+
+#### How to Configure Passwords
+
+1. **Create or edit `terraform.tfvars`:**
+
+   ```bash
+   cp terraform.tfvars.example terraform.tfvars
+   ```
+
+2. **Set your passwords:**
+
+   ```hcl
+   # OrangeHRM admin credentials
+   orangehrm_admin_username = "admin"
+   orangehrm_admin_password = "AdminDemo2024!"
+
+   # User password (same for all employees)
+   default_user_password = "UserDemo2024!"
+   ```
+
+3. **Apply the configuration:**
+   ```bash
+   terraform apply
+   ```
+
+#### Password Security Notes
+
+- **Admin password**: Used for the main OrangeHRM administrator account
+- **User password**: Used for all employee accounts (same password for all)
+- **Demo purposes**: The same password for all users makes it easier for demonstrations
+- **Production**: Consider using different passwords for each user in production environments
+
+#### Access Information
+
+After deployment, you can access OrangeHRM with:
+
+- **Admin login**: Use the configured admin username and password
+- **Employee login**: Use any employee's first name as username with the configured user password
+
+Example employee logins (with default password `SecurePass123!`):
+
+- Username: `Kayla`, Password: `SecurePass123!`
+- Username: `Ashley`, Password: `SecurePass123!`
+- Username: `Tyler`, Password: `SecurePass123!`
+
 ### Environment Variables
 
 Create a `terraform.tfvars` file to customize the deployment:
@@ -369,6 +443,13 @@ mysql_password = "your_secure_password"
 # Application Configuration
 load_sample_data = true
 public_access = false
+
+# OrangeHRM Admin Credentials
+orangehrm_admin_username = "admin"
+orangehrm_admin_password = "AdminDemo2024!"
+
+# User Password (same for all employees)
+default_user_password = "UserDemo2024!"
 
 # Image Configuration
 orangehrm_image = "orangehrm/orangehrm"

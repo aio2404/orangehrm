@@ -21,10 +21,19 @@ output "orangehrm_service" {
 output "admin_credentials" {
   description = "Default admin credentials"
   value = {
-    username = "admin"
-    password = "admin"
+    username = var.orangehrm_admin_username
+    password = var.orangehrm_admin_password
   }
-  sensitive = false
+  sensitive = true
+}
+
+output "user_credentials" {
+  description = "Default user password for all employees"
+  value = {
+    password = var.default_user_password
+    note     = "All employees use the same password for demo purposes"
+  }
+  sensitive = true
 }
 
 output "orangehrm_url" {
